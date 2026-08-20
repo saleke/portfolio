@@ -121,7 +121,7 @@ The project is connected to GitHub so that changes pushed to the repository can 
 
 ## Author
 
-**Async**
+**saleke**
 
 Software Developer in Training
 
