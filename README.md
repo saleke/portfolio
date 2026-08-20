@@ -125,7 +125,7 @@ The project is connected to GitHub so that changes pushed to the repository can 
 
 Software Developer in Training
 
-GitHub: [@https://github.com/saleke/](https://github.com/yourusername)
+GitHub: [@saleke](https://github.com/saleke)
 
 ---
 
