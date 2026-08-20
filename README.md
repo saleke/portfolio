@@ -1,19 +1,19 @@
-# Personal Portfolio
+# Solomon Aleke | Developer Portfolio
 
-My personal developer portfolio showcasing my projects, technical skills, learning journey, and interests in software engineering.
+An accessible, responsive developer portfolio for presenting my projects, technical direction, and current learning honestly and clearly.
 
-The portfolio is designed to provide a concise view of what I build, the technologies I work with, and the areas of software engineering I am currently exploring.
+The portfolio is designed to provide a concise view of what I build, the technologies I work with, and the technical direction I am developing.
 
 ## Tech Stack
 
-* **Next.js** — React framework
-* **React** — UI development
-* **TypeScript** — Type-safe application development
-* **Tailwind CSS** — Styling
-* **Vercel** — Deployment
-* **Git & GitHub** — Version control
+* **Next.js** | React framework
+* **React** | UI development
+* **TypeScript** | Type-safe application development
+* **Tailwind CSS** | Styling
+* **Vercel** | Deployment
+* **Git & GitHub** | Version control
 
-## Featured Technologies
+## Developer Stack
 
 My broader technical stack includes:
 
@@ -24,26 +24,18 @@ My broader technical stack includes:
 * Next.js
 * PostgreSQL
 
-## Areas of Focus
+## Current Direction
 
-I'm currently developing my skills in:
-
-* Backend engineering
-* Web development
-* HTTP and networking
-* Data structures and algorithms
-* Concurrency
-* Computer systems
-* Software architecture
-
-Future areas of focus include:
-
+* Full Stack Web Development
+* AI Integration
 * Cybersecurity
 * Artificial Intelligence and Machine Learning
+* Networking
+* Software Engineering
 
 ## Projects
 
-The portfolio includes selected projects that demonstrate practical implementation and engineering experience.
+Project content is stored in typed local data and supports dedicated case-study pages. Current projects include ASCII Art Web, the School Website in progress, and the portfolio itself. Additional work can be added in `data/projects.ts` as it is ready to publish.
 
 Each substantial project includes information about:
 
@@ -60,8 +52,8 @@ Each substantial project includes information about:
 Clone the repository:
 
 ```bash
-git clone <repository-url>
-cd <repository-directory>
+git clone https://github.com/saleke/portfolio.git
+cd portfolio
 ```
 
 Install dependencies:
@@ -98,9 +90,9 @@ npm run start
 
 ## Deployment
 
-The portfolio is deployed using **Vercel**.
+The project is configured for Vercel. Import the GitHub repository into Vercel and deploy with the default Next.js settings. Vercel automatically supplies the production URL used by the site metadata.
 
-The project is connected to GitHub so that changes pushed to the repository can be deployed automatically.
+For another host or custom domain, set `NEXT_PUBLIC_SITE_URL` to the full public URL.
 
 ## Project Structure
 
@@ -117,11 +109,11 @@ The project is connected to GitHub so that changes pushed to the repository can 
 
 ## Status
 
-🚧 Actively maintained and continuously updated as I build new projects and develop my software engineering skills.
+Actively maintained and updated as I build and document new projects.
 
 ## Author
 
-**saleke**
+**Solomon Aleke (`saleke`)**
 
 Software Developer in Training
 
