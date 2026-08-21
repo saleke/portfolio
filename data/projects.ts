@@ -26,7 +26,7 @@ export const projects: Project[] = [
     context: "A practical web project demonstrating Go HTTP handling, server-rendered pages, and a focused user workflow.",
     technologies: ["Go", "net/http", "HTML", "CSS"],
     featured: true,
-    githubUrl: "https://github.com/saleke/ascii-art-web",
+    githubUrl: "https://asciiartweb.vercel.app/",
     overview: "ASCII Art Web turns user provided text into formatted ASCII art through a simple browser interface.",
     problem: "Generating ASCII art from banner styles is useful as a programming exercise, but a command-line workflow is not as approachable for every user.",
     solution: "The project exposes the generator through a small web application with a form, server-side processing, and rendered output.",
