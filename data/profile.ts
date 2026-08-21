@@ -3,7 +3,7 @@ export const profile = {
   codeName: "saleke",
   title: "Software Developer in Training",
   email: "alekesolomon347@gmail.com",
-  phone: "+2349131418159"
+  phone: "+2349131418159",
   githubUrl: "https://github.com/saleke",
   linkedinUrl: "https://www.linkedin.com/in/solomon-aleke-43a180377/",
   availability: "Learning and building",
