@@ -9,6 +9,7 @@ const links = [
   ["Projects", "/#projects"],
   ["Stack", "/#stack"],
   ["GitHub", profile.githubUrl],
+  ["LinkedIn", profile.linkedinUrl],
   ["Contact", "/#contact"],
 ] as const;
 
