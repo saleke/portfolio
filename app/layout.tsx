@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     images: [{ url: "/images/solomon-aleke.png", width: 1024, height: 1024, alt: "Portrait of Solomon Aleke" }],
   },
   twitter: { card: "summary_large_image", title: "Solomon Aleke | Software Developer in Training", description: "Full stack web development, software engineering, and networking." },
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: "/images/solomon-aleke.png" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
