@@ -4,7 +4,7 @@ export const profile = {
   title: "Software Developer in Training",
   email: "alekesolomon347@gmail.com",
   githubUrl: "https://github.com/saleke",
-  linkedinUrl: "",
+  linkedinUrl: "https://www.linkedin.com/in/solomon-aleke-43a180377/",
   availability: "Learning and building",
   stack: ["Go", "Python", "TypeScript", "React", "Next.js", "PostgreSQL"],
 } as const;
