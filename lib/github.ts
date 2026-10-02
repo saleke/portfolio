@@ -237,7 +237,8 @@ export async function commitFiles(files: GitFile[], message: string): Promise<Co
     } catch (error) {
       // A non-fast-forward means someone pushed between our read and our write.
       // Retry against the new head rather than failing the owner's save.
-      if (error instanceof GitHubError && error.status === 422) continue;
+      // GitHub returns 409 for a stale ref and 422 for a conflict; both are retryable.
+      if (error instanceof GitHubError && (error.status === 409 || error.status === 422)) continue;
       throw error;
     }
   }
