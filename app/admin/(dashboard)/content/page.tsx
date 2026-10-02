@@ -7,6 +7,7 @@ import {
   saveAbout,
   saveTerminal,
   saveSections,
+  savePortrait,
 } from "@/app/admin/content/actions";
 import {
   IdentityEditor,
@@ -14,6 +15,7 @@ import {
   AboutEditor,
   TerminalEditor,
   SectionsEditor,
+  PortraitEditor,
 } from "@/app/admin/(dashboard)/content/CopyEditor";
 
 /**
@@ -169,6 +171,10 @@ export default async function ContentPage({
             intro: site.sections[key].intro,
           }))}
         />
+      ) : null}
+
+      {active === "portrait" ? (
+        <PortraitEditor action={savePortrait} values={{ profileImage: site.profileImage }} />
       ) : null}
     </div>
   );

@@ -69,7 +69,7 @@ export async function Hero() {
               is the LCP image, so it must be preloaded rather than lazily
               discovered by the parser. */}
           <Image
-            src="/images/solomon-aleke.png"
+            src={site.profileImage}
             alt={`Portrait of ${site.name}`}
             fill
             preload

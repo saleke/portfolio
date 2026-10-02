@@ -126,6 +126,7 @@ async function readSite(): Promise<SiteCopy> {
       sections: Object.fromEntries(
         SECTION_KEYS.map((key) => [key, { index: "", title: "", intro: "" }]),
       ),
+      profileImage: "/images/solomon-aleke.png",
     });
   }
 
@@ -456,6 +457,34 @@ export async function saveTechnologies(
     // it from a stale local copy.
     await readDocument(DOCUMENTS.technologies, technologiesSchema, "The technology list");
     return await save(DOCUMENTS.technologies, { groups }, "content: update technology list");
+  } catch (error) {
+    if (error instanceof GitHubError) return { status: "error", message: error.message };
+    throw error;
+  }
+}
+
+/** Profile picture — a single path under `public/images/`. */
+export async function savePortrait(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const denied = await requireAuth();
+  if (denied) return denied;
+
+  const value = text(formData, "profileImage").trim();
+  const parsed = siteCopySchema.shape.profileImage.safeParse(value);
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "Some fields need attention.",
+      fieldErrors: fieldErrorsFrom(parsed.error.issues),
+    };
+  }
+
+  try {
+    const current = await readSite();
+    return await save(
+      DOCUMENTS.site,
+      { ...current, profileImage: parsed.data },
+      "content: update profile portrait",
+    );
   } catch (error) {
     if (error instanceof GitHubError) return { status: "error", message: error.message };
     throw error;

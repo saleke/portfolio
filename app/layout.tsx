@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: "/images/solomon-aleke.png",
+          url: site.profileImage,
           width: 1024,
           height: 1024,
           alt: `Portrait of ${site.name}`,
@@ -34,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: fullTitle,
       description: site.seoDescription,
     },
-    icons: { icon: "/images/solomon-aleke.png" },
+    icons: { icon: site.profileImage },
   };
 }
 

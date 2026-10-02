@@ -4,7 +4,7 @@ An accessible, responsive developer portfolio for presenting my projects,
 technical direction, and current learning honestly and clearly.
 
 The portfolio provides a concise view of what I build, the technologies I work
-with, and the technical direction I am developing — and it can all be edited
+with, and the technical direction I am developing and it can all be edited
 from a password-protected admin area without touching code.
 
 ## Tech Stack
@@ -254,8 +254,8 @@ which is what makes an admin save go live.
 ```text
 .
 ├── app/
-│   ├── admin/              # the control plane
-│   │   ├── login/          # outside the auth guard
+│   ├── ..../              # the control plane
+│   │   ├── ..../          # outside the auth guard
 │   │   └── (dashboard)/    # inside it
 │   └── projects/[slug]/    # public case studies
 ├── components/

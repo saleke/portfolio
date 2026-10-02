@@ -81,6 +81,9 @@ export const siteCopySchema = z.object({
     learning: sectionHeadingSchema,
     contact: sectionHeadingSchema,
   }),
+
+  // --- Profile picture ------------------------------------------------------
+  profileImage: z.string().trim().min(1, "Profile image path is required").max(200),
 });
 export type SiteCopy = z.infer<typeof siteCopySchema>;
 
@@ -138,6 +141,7 @@ export const COPY_TABS = [
   { key: "about", label: "About" },
   { key: "terminal", label: "Terminal card" },
   { key: "sections", label: "Section headings" },
+  { key: "portrait", label: "Profile picture" },
 ] as const;
 
 export type CopyTab = (typeof COPY_TABS)[number]["key"];

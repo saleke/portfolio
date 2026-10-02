@@ -114,6 +114,7 @@ h1 em { color: var(--accent); font-style: normal; }
 .admin-sidebar {
   position: sticky; top: 0; display: flex; height: 100dvh; flex-direction: column;
   border-right: 1px solid var(--line); background: var(--surface);
+  box-shadow: 1px 0 0 rgba(0,0,0,.15);
 }
 .admin-sidebar-head { display: flex; align-items: center; gap: 11px; min-height: 66px; padding: 0 18px; border-bottom: 1px solid var(--line); }
 .admin-brand-mark { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border: 1px solid var(--accent); color: var(--accent); font-family: Arial, sans-serif; font-size: 14px; }
@@ -147,7 +148,8 @@ h1 em { color: var(--accent); font-style: normal; }
    site's, which is visible side by side in the same column. */
 .admin-nav-button { font: inherit; }
 
-.admin-body { min-width: 0; display: flex; flex-direction: column; }
+.admin-body { min-width: 0; display: flex; flex-direction: column; min-height: 100dvh; }
+.admin-page { flex: 1; display: flex; flex-direction: column; }
 .admin-mobilebar { display: none; }
 .admin-scrim { position: fixed; inset: 0; z-index: 60; border: 0; background: rgba(5,7,6,.66); backdrop-filter: blur(2px); cursor: pointer; }
 
@@ -193,7 +195,8 @@ h1 em { color: var(--accent); font-style: normal; }
 
 /* --- Stats ------------------------------------------------------- */
 .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
-.admin-stat { display: flex; gap: 13px; align-items: flex-start; border: 1px solid var(--line); background: var(--surface); padding: 18px; }
+.admin-stat { display: flex; gap: 13px; align-items: flex-start; border: 1px solid var(--line); background: var(--surface); padding: 18px; transition: border-color .16s ease, transform .16s ease; }
+.admin-stat:hover { border-color: #3a443c; transform: translateY(-1px); }
 .admin-stat-icon { display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; border: 1px solid var(--line); color: var(--accent); background: var(--bg); }
 .admin-stat strong { display: block; font-size: 1.7rem; font-weight: 500; line-height: 1.1; letter-spacing: -.03em; }
 .admin-stat span { display: block; color: var(--ink); font-size: .84rem; }
@@ -201,8 +204,8 @@ h1 em { color: var(--accent); font-style: normal; }
 
 /* --- Overview panels --------------------------------------------- */
 .admin-quicklinks { display: grid; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
-.admin-quicklinks a { display: flex; gap: 13px; align-items: center; border: 1px solid var(--line); background: var(--bg); padding: 14px 16px; color: inherit; text-decoration: none; transition: border-color .16s ease, background .16s ease; }
-.admin-quicklinks a:hover { border-color: var(--accent); background: var(--surface-2); }
+.admin-quicklinks a { display: flex; gap: 13px; align-items: center; border: 1px solid var(--line); background: var(--bg); padding: 14px 16px; color: inherit; text-decoration: none; transition: border-color .16s ease, background .16s ease, transform .16s ease; }
+.admin-quicklinks a:hover { border-color: var(--accent); background: var(--surface-2); transform: translateX(2px); }
 .admin-quicklinks svg { flex: 0 0 auto; color: var(--accent); }
 .admin-quicklinks strong { display: block; font-size: .92rem; font-weight: 500; }
 .admin-quicklinks small { display: block; color: var(--muted); font-size: .78rem; }
@@ -257,7 +260,7 @@ h1 em { color: var(--accent); font-style: normal; }
 .admin-empty p { max-width: 480px; margin: 0 auto 22px; color: var(--muted); font-size: .88rem; line-height: 1.6; }
 
 /* --- Forms ------------------------------------------------------- */
-.admin-form { display: grid; gap: 20px; }
+.admin-form { display: grid; gap: 20px; flex: 1; align-content: start; }
 .admin-form-wide { max-width: 800px; }
 .admin-form-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
 .admin-form-head h1 { margin: 0; font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 500; letter-spacing: -.035em; }

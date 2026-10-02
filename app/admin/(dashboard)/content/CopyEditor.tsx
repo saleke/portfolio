@@ -284,6 +284,30 @@ export function TerminalEditor({
   );
 }
 
+/** Profile picture tab. */
+export function PortraitEditor({
+  action,
+  values,
+}: {
+  action: (state: ActionState, formData: FormData) => Promise<ActionState>;
+  values: { profileImage: string };
+}) {
+  return (
+    <EditorForm action={action}>
+      {({ fieldErrors }) => (
+        <Field
+          label="Profile image path"
+          htmlFor="profileImage"
+          hint="Path under /images/ in the public folder. Replace the file at this path to change the portrait."
+          error={fieldErrors.profileImage}
+        >
+          <TextInput name="profileImage" defaultValue={values.profileImage} maxLength={200} required />
+        </Field>
+      )}
+    </EditorForm>
+  );
+}
+
 /** Section headings tab. */
 export function SectionsEditor({
   action,
