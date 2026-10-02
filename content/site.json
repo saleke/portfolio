@@ -1,0 +1,64 @@
+{
+  "name": "Solomon Aleke",
+  "codeName": "saleke",
+  "title": "Software Developer in Training",
+  "seoDescription": "The portfolio of Solomon Aleke, a software developer in training focused on full stack web development, software engineering, and networking.",
+  "hero": {
+    "availability": "Learning and building",
+    "overline": "FULL STACK WEB DEVELOPMENT",
+    "lede": "I build full stack web applications while developing deeper expertise in software engineering and networking, with growing interests in cybersecurity and artificial intelligence.",
+    "stack": [
+      "Go",
+      "Python",
+      "TypeScript",
+      "React",
+      "Next.js",
+      "PostgreSQL"
+    ],
+    "positioning": ["Go • Python • TypeScript", "Full Stack Web Development"],
+    "primaryAction": "View Projects",
+    "secondaryAction": "GitHub"
+  },
+  "terminal": {
+    "filename": "identity.sh",
+    "whoamiLabel": "whoami",
+    "identity": "software-developer-in-training",
+    "focusLabel": "focus",
+    "focus": "full stack web development / AI integration",
+    "statusLabel": "status"
+  },
+  "about": {
+    "lede": "I learn by turning concepts into working software, moving between interfaces, application logic, data, and the systems that support them.",
+    "paragraphs": [
+      "My technical interests include web development, networking, cybersecurity, and artificial intelligence.",
+      "I learn primarily through implementation, building projects that strengthen my understanding of the technologies I use."
+    ]
+  },
+  "sections": {
+    "about": {
+      "index": "01 / ABOUT",
+      "title": "Building across the stack.",
+      "intro": "Implementation is how I turn concepts into working software."
+    },
+    "projects": {
+      "index": "02 / SELECTED WORK",
+      "title": "Projects with a point of view.",
+      "intro": "A growing record of things built to learn something real."
+    },
+    "stack": {
+      "index": "03 / TECHNOLOGY",
+      "title": "Tools I use, concepts I study.",
+      "intro": "No percentage bars. Just the technologies and ideas currently shaping my work."
+    },
+    "learning": {
+      "index": "04 / DIRECTION & SKILLS",
+      "title": "Building with intent.",
+      "intro": "The current direction of my work, established skills, and technical interests."
+    },
+    "contact": {
+      "index": "05 / CONTACT",
+      "title": "Let's connect.",
+      "intro": "Reach out if you would like to talk about software, projects, or ideas worth building."
+    }
+  }
+}

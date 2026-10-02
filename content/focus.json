@@ -1,0 +1,12 @@
+{
+  "items": [
+    { "label": "Current direction", "detail": "Full Stack Web Development", "accent": false },
+    { "label": "Established skill", "detail": "AI Integration", "accent": false },
+    {
+      "label": "Technical interests",
+      "detail": "Cybersecurity · Artificial Intelligence / Machine Learning",
+      "accent": true
+    },
+    { "label": "Technical foundations", "detail": "Networking · Software Engineering", "accent": false }
+  ]
+}

@@ -1,0 +1,11 @@
+# This directory is created by git on demand.
+#
+# `public/uploads/projects/` is where images published through the admin end up.
+# It is empty in a fresh clone because the directory itself is not tracked by
+# git — only files are. This file exists so the path survives a clone, which
+# means the owner can drop an image in by hand, and so the structure is visible
+# in the repository rather than appearing only after the first upload.
+#
+# Nothing reads this directory at build time; the admin writes through the
+# GitHub API, which creates the path on the first commit. The placeholder is
+# convenience, not a requirement.

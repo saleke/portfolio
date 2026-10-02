@@ -1,0 +1,31 @@
+{
+  "title": "Personal Portfolio",
+  "eyebrow": "CASE STUDY / 02",
+  "description": "A focused portfolio for presenting full stack web development work, technical interests, and current learning.",
+  "context": "Designed to make practical software work and technical direction easy to understand.",
+  "technologies": [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Tailwind CSS"
+  ],
+  "featured": true,
+  "status": "in-progress",
+  "githubUrl": "https://github.com/saleke",
+  "overview": "This portfolio is a small, content-driven Next.js application that presents my full stack development direction and creates a home for future project case studies.",
+  "problem": "A developer in training needs a clear way to communicate what they are building and learning without relying on vague claims or a long biography.",
+  "solution": "The site uses a compact information architecture: a direct hero, honest project data, categorized technologies, and a clear path to code and contact.",
+  "architecture": "Next.js App Router with server-rendered sections, typed local data modules, and a small client-side navigation component for the mobile menu.",
+  "decisions": [
+    "Keep portfolio content in typed data files so new projects do not require presentation rewrites.",
+    "Use native links and CSS for interaction feedback to keep client-side JavaScript minimal.",
+    "Treat current learning as a distinct category rather than presenting it as finished expertise."
+  ],
+  "features": [
+    "Responsive single-page layout",
+    "Project detail route",
+    "Accessible mobile navigation",
+    "SEO and social metadata"
+  ],
+  "order": 2
+}

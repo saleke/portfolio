@@ -1,21 +1,47 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { siteUrl } from "@/data/site";
+import { getSiteCopy } from "@/lib/content";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "Solomon Aleke | Software Developer in Training",
-  description: "The portfolio of Solomon Aleke, a software developer in training focused on full stack web development, software engineering, and networking.",
-  openGraph: {
-    title: "Solomon Aleke | Software Developer in Training",
-    description: "Building full stack web applications while developing deeper expertise in software engineering and networking.",
-    type: "website",
-    images: [{ url: "/images/solomon-aleke.png", width: 1024, height: 1024, alt: "Portrait of Solomon Aleke" }],
-  },
-  twitter: { card: "summary_large_image", title: "Solomon Aleke | Software Developer in Training", description: "Full stack web development, software engineering, and networking." },
-  icons: { icon: "/images/solomon-aleke.png" },
-};
+/**
+ * Root metadata is generated from content rather than hardcoded, so changing the
+ * name, title or meta description in the admin updates the browser tab, the
+ * search snippet and the social card together.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteCopy();
+  const fullTitle = `${site.name} | ${site.title}`;
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: fullTitle,
+    description: site.seoDescription,
+    openGraph: {
+      title: fullTitle,
+      description: site.seoDescription,
+      type: "website",
+      images: [
+        {
+          url: "/images/solomon-aleke.png",
+          width: 1024,
+          height: 1024,
+          alt: `Portrait of ${site.name}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: fullTitle,
+      description: site.seoDescription,
+    },
+    icons: { icon: "/images/solomon-aleke.png" },
+  };
+}
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
 }

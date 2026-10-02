@@ -1,3 +1,46 @@
-import { profile } from "@/data/profile";
+import { buildContactLinks } from "@/data/profile";
 import { SectionHeading } from "@/components/SectionHeading";
-export function Contact() { return <section className="section contact-section container" id="contact" aria-labelledby="contact-title"><SectionHeading id="contact-title" index="05 / CONTACT" title="Let&apos;s connect." intro="Reach out if you would like to talk about software, projects, or ideas worth building." /><div className="contact-links"><a href={`mailto:${profile.email}`}><span>Email</span><strong>{profile.email}</strong><span aria-hidden="true">↗</span></a><a href={`tel:${profile.phone}`}><span>Phone</span><strong>+234 913 141 8159</strong><span aria-hidden="true">↗</span></a><a href={profile.githubUrl} target="_blank" rel="noreferrer"><span>GitHub</span><strong>@{profile.codeName}</strong><span aria-hidden="true">↗</span></a><a href={profile.linkedinUrl} target="_blank" rel="noreferrer"><span>LINKEDIN</span><strong>@saleke_linkedin</strong><span aria-hidden="true">↗</span></a></div></section>; }
+import { getSiteCopy } from "@/lib/content";
+
+export async function Contact() {
+  const site = await getSiteCopy();
+  const links = buildContactLinks(site.codeName);
+
+  return (
+    <section
+      className="section contact-section container"
+      id="contact"
+      aria-labelledby="contact-title"
+    >
+      <SectionHeading
+        id="contact-title"
+        index={site.sections.contact.index}
+        title={site.sections.contact.title}
+        intro={site.sections.contact.intro}
+      />
+
+      {/* Rows are derived from the channels that are actually configured, so a
+          missing value can never render a dead `mailto:` or `tel:` link. */}
+      <div className="contact-links">
+        {links.length > 0 ? (
+          links.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              {...(link.external ? { target: "_blank", rel: "noreferrer" } : {})}
+            >
+              <span>{link.label}</span>
+              <strong>{link.display}</strong>
+              <span aria-hidden="true">↗</span>
+            </a>
+          ))
+        ) : (
+          <p className="contact-empty">
+            Contact details are not configured yet. Set the contact environment variables to display
+            them here.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}

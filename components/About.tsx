@@ -1,5 +1,27 @@
 import { SectionHeading } from "@/components/SectionHeading";
+import { getSiteCopy } from "@/lib/content";
 
-export function About() {
-  return <section className="section container" id="about" aria-labelledby="about-title"><SectionHeading id="about-title" index="01 / ABOUT" title="Building across the stack." intro="Implementation is how I turn concepts into working software." /><div className="about-grid"><p className="about-lede">I learn by turning concepts into working software, moving between interfaces, application logic, data, and the systems that support them.</p><div className="about-copy"><p>My technical interests include web development, networking, cybersecurity, and artificial intelligence.</p><p>I learn primarily through implementation, building projects that strengthen my understanding of the technologies I use.</p></div></div></section>;
+export async function About() {
+  const site = await getSiteCopy();
+  const { about, sections } = site;
+
+  return (
+    <section className="section container" id="about" aria-labelledby="about-title">
+      <SectionHeading
+        id="about-title"
+        index={sections.about.index}
+        title={sections.about.title}
+        intro={sections.about.intro}
+      />
+
+      <div className="about-grid">
+        <p className="about-lede">{about.lede}</p>
+        <div className="about-copy">
+          {about.paragraphs.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
