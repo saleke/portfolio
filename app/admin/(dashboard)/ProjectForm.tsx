@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { Project } from "@/lib/schema";
 import { createProject, updateProject } from "@/app/admin/actions";
 import type { ActionState } from "@/app/admin/state";
 import { Field, FormStatus, StringListInput, Toggle } from "@/components/admin/inputs";
 import { ImageUploader } from "./ImageUploader";
+import { useDraft } from "@/app/admin/useDraft";
 
 /**
  * The publishing form, used for both new projects and edits.
@@ -45,10 +46,53 @@ export function ProjectForm({ project }: { project?: Project }) {
     status: "idle",
   });
 
+  /*
+    Draft keys are namespaced by slug so an edit and a new entry never share
+    one, and keyed by slug rather than by title so renaming a project does not
+    orphan the draft that belongs to it.
+  */
+  const { formRef, save, flush, clear } = useDraft(
+    isEdit ? `project:${project!.slug}` : "project:new",
+    state.status,
+  );
+
+  /*
+    `createProject` finishes by redirecting, so a successful publish never
+    returns a `"success"` status to observe — the form is simply gone. Clearing
+    the draft on unmount while a submit was in flight covers that path without
+    touching the failure path, where the form stays mounted and the draft is
+    deliberately kept.
+
+    Only for a new project: an edit returns `"success"` normally, and this
+    unmount would then fire during an ordinary navigation away from a form that
+    had failed to save.
+  */
+  const submittingRef = useRef(false);
+  useEffect(() => {
+    if (pending) submittingRef.current = true;
+  }, [pending]);
+
+  useEffect(() => {
+    return () => {
+      if (!isEdit && submittingRef.current) clear();
+    };
+  }, [clear, isEdit]);
+
   const errors = state.fieldErrors ?? {};
 
   return (
-    <form action={formAction} className="admin-form admin-form-wide">
+    <form
+      ref={formRef}
+      action={formAction}
+      className="admin-form admin-form-wide"
+      onChange={save}
+      /*
+        `flush` rather than relying on the debounce: the submission resolves in a
+        few hundred milliseconds, which is shorter than the timer, so the last
+        edit before saving would otherwise never reach storage.
+      */
+      onSubmit={flush}
+    >
       {isEdit ? <input type="hidden" name="slug" value={project!.slug} /> : null}
 
       <div className="admin-form-head">
