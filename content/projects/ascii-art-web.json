@@ -1,5 +1,5 @@
 {
-  "title": "A Art Web",
+  "title": "ASCII Art Web",
   "description": "A Go based web application for generating ASCII art from user provided text using configurable banner styles.",
   "context": "A practical web project demonstrating Go HTTP handling, server-rendered pages, and a focused user workflow.",
   "overview": "ASCII Art Web turns user provided text into formatted ASCII art through a simple browser interface.",
