@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { getProject, getProjectSlugs } from "@/lib/projects";
 import { getSiteCopy } from "@/lib/content";
+import { Prose } from "@/components/Prose";
 
 /**
  * Case-study page.
@@ -102,46 +103,57 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               </figure>
             ) : null}
 
-            <section>
+            {/*
+              Each narrative section is a card rather than a full-bleed block of
+              text divided by rules. The measure is capped well below the column
+              so a long paragraph breaks at a readable width instead of running
+              the full 720px, which is the other half of why prose this long felt
+              like something to skim past.
+            */}
+            <section className="detail-card">
               <p className="detail-label">01 / OVERVIEW</p>
-              <p>{project.overview}</p>
+              <Prose text={project.overview} className="detail-prose" />
             </section>
 
-            <section>
+            <section className="detail-card">
               <p className="detail-label">02 / PROBLEM</p>
-              <p>{project.problem}</p>
+              <Prose text={project.problem} className="detail-prose" />
             </section>
 
-            <section>
+            <section className="detail-card">
               <p className="detail-label">03 / SOLUTION</p>
-              <p>{project.solution}</p>
+              <Prose text={project.solution} className="detail-prose" />
             </section>
 
-            <section>
+            <section className="detail-card">
               <p className="detail-label">04 / ARCHITECTURE</p>
-              <p>{project.architecture}</p>
+              <Prose text={project.architecture} className="detail-prose" />
             </section>
 
-            <section>
-              <p className="detail-label">05 / TECHNICAL DECISIONS</p>
-              <ul>
-                {project.decisions.map((decision) => (
-                  <li key={decision}>{decision}</li>
-                ))}
-              </ul>
-            </section>
+            {project.decisions.length > 0 ? (
+              <section className="detail-card">
+                <p className="detail-label">05 / TECHNICAL DECISIONS</p>
+                <ul>
+                  {project.decisions.map((decision) => (
+                    <li key={decision}>{decision}</li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
 
-            <section>
-              <p className="detail-label">06 / FEATURES</p>
-              <ul>
-                {project.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-              </ul>
-            </section>
+            {project.features.length > 0 ? (
+              <section className="detail-card">
+                <p className="detail-label">06 / FEATURES</p>
+                <ul>
+                  {project.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
 
             {gallery.length > 0 ? (
-              <section>
+              <section className="detail-card">
                 <p className="detail-label">07 / SCREENSHOTS</p>
                 <div className="detail-gallery">
                   {gallery.map((image) => (

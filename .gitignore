@@ -15,6 +15,11 @@ build/
 # committed before it was ignored; `git rm --cached` untracked it.
 tsconfig.tsbuildinfo
 
+# Next.js rewrites this file whenever it switches between dev and build, flipping
+# the paths it imports. That churn is generated, not authored, and committing it
+# buries real changes under a diff nobody made on purpose.
+next-env.d.ts
+
 # system files
 .DS_Store
 *.log

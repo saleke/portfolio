@@ -20,12 +20,18 @@ import { useDraft } from "@/app/admin/useDraft";
  * a pending state on top of that.
  */
 
-/** The four narrative fields, which share a shape. */
+/**
+ * The four narrative fields, which share a shape.
+ *
+ * The hint mentions the blank line because it is load-bearing: the case-study
+ * page splits on it to build paragraphs. Without that hint the owner types
+ * structure that looks like it should work and cannot tell that it does.
+ */
 const NARRATIVE_FIELDS = [
-  ["overview", "Overview", "What it is."],
-  ["problem", "Problem", "What it was trying to solve."],
-  ["solution", "Solution", "What you built."],
-  ["architecture", "Architecture", "How it is put together."],
+  ["overview", "Overview", "What it is. Leave a blank line to start a new paragraph."],
+  ["problem", "Problem", "What it was trying to solve. Blank line for a new paragraph."],
+  ["solution", "Solution", "What you built. Blank line for a new paragraph."],
+  ["architecture", "Architecture", "How it is put together. Blank line for a new paragraph."],
 ] as const;
 
 /** Mirrors `projectSchema` so the counter warns before the limit is hit. */
