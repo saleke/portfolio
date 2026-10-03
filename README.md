@@ -49,17 +49,51 @@ Each substantial project has its own case-study page covering:
 * Source code
 * Live demonstrations where available
 
-Projects are added and edited from `/admin`. See **Admin control plane** below.
+Projects are added and edited from `/admin`. Unsubmitted form input is kept in
+`localStorage`, so a refresh, a rejected save or navigating away does not cost
+you the form. See **Admin control plane** below.
 
 ---
 
 ## Admin control plane
 
-Everything on the public site — identity, hero copy, about text, the terminal
-card, section headings, technologies, current focus, and every project — is
-edited at `/admin` and published as a commit to this repository. Vercel rebuilds
-the site from that commit, so there is no separate CMS, no database and no new
-hosting to pay for.
+Everything on the public site is edited at `/admin` and published as a commit to
+this repository: identity, hero copy, about text, the terminal card, section
+headings, technologies, current focus, and every project. Vercel rebuilds the site
+from that commit, so there is no separate CMS, no database and no new hosting to
+pay for.
+
+### Writing prose
+
+The four narrative fields on a case study (overview, problem, solution,
+architecture) treat a blank line as a paragraph break, and a single newline as a
+line break. This matters: rendering that text as raw HTML would collapse every
+blank line into a single space, so typed structure would silently vanish before a
+reader saw it. `components/Prose.tsx` splits the text instead.
+
+Sections render as cards with prose capped at a `62ch` reading measure, so a long
+paragraph wraps where it is comfortable to read rather than across the full
+column.
+
+### Editing and code changes at the same time
+
+Admin saves write content commits to `main` directly, so a local branch and the
+remote can move apart while you work. This repo is configured to rebase rather
+than merge:
+
+```bash
+git config pull.rebase true       # replay local commits on top of remote ones
+git config pull.autoStash true    # stash in-progress edits, rebase, restore
+git config fetch.prune true       # drop deleted remote branches
+```
+
+The two sides do not overlap. Admin saves can only write the paths declared in
+`lib/repo-paths.ts`: the project JSON files, the three site documents, and
+uploads. Code changes touch neither, so a rebase applies without conflicts.
+
+One ordering caveat that git cannot solve: an admin save triggers a Vercel
+rebuild. Publishing while a build is still in flight ships code that does not
+match the newest content. Wait for the build to settle before saving again.
 
 ### Setup
 
@@ -83,8 +117,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 ```
 
 **4. Create a GitHub token.** A **fine-grained personal access token** with
-`Contents: write` on this repository only — no access to anything else. That is
-what lets a save become a commit.
+`Contents: write` on this repository only, so it grants no access to anything
+else. That is what lets a save become a commit.
 
 **5. Set the publishing variables** in `.env.local`, then run `npm run dev` and
 open `/admin`.
@@ -118,12 +152,12 @@ need to cross-reference this file against the dashboard.
 
 Contact details are environment variables rather than admin-editable on
 purpose: a phone number and a personal address should not live in a public
-repository's history. A channel with no value is **omitted entirely** — the site
+repository's history. A channel with no value is **omitted entirely**: the site
 derives the list, so a dead `mailto:` or `tel:` link is not constructible.
 
 > The `NEXT_PUBLIC_*` values are read while the site is **built**, because the
-> public pages are prerendered. On Vercel that is automatic — saving an
-> environment variable triggers a rebuild — but locally you must restart
+> public pages are prerendered. On Vercel that is automatic, since saving an
+> environment variable triggers a rebuild. Locally you must re-run
 > `npm run build` for a change to appear.
 
 ### How publishing works
@@ -133,7 +167,8 @@ derives the list, so a dead `mailto:` or `tel:` link is not constructible.
    the fields that form owns.
 3. The project JSON **and every new image go into a single commit** via the
    GitHub Git Data API, so a project can never reference an image that was never
-   written.
+   written. The commit names the branch head it read as its parent, so a save
+   that races another one retries against the new head instead of failing.
 4. Vercel sees the commit on the connected branch and redeploys.
 
 **A save takes one to three minutes to appear.** That is the cost of using the
@@ -161,9 +196,9 @@ commit on GitHub, where this can be done without touching a terminal.
   public HTTP endpoint whose id is not a secret, so the page guard is
   convenience, not the boundary.
 * Failed logins are counted in a signed cookie: five attempts per 15 minutes.
-  This is deliberately labelled best-effort — discarding cookies restores the
-  budget. The real cost of brute force here is scrypt, which makes each attempt
-  deliberately expensive.
+  This is deliberately labelled best-effort, since discarding cookies restores
+  the budget. The real cost of brute force here is scrypt, which makes each
+  attempt deliberately expensive.
 * `/admin` is `noindex`, carries an `X-Robots-Tag` header, and is disallowed in
   `robots.txt`.
 * Uploads are validated from their **magic bytes**, never the declared
@@ -215,7 +250,7 @@ npm run dev
 
 Open <http://localhost:3000>. The admin is at <http://localhost:3000/admin>.
 
-The public site works with no environment variables at all — the admin simply
+The public site works with no environment variables at all: the admin simply
 reports that it is not configured. Nothing on the public pages depends on the
 admin being set up.
 
@@ -256,10 +291,12 @@ which is what makes an admin save go live.
 ├── app/
 │   ├── admin/              # the control plane
 │   │   ├── login/          # outside the auth guard
+│   │   ├── useDraft.ts     # preserves unsubmitted form input
 │   │   └── (dashboard)/    # inside it
 │   └── projects/[slug]/    # public case studies
 ├── components/
 │   ├── admin/              # admin-only components
+│   ├── Prose.tsx           # paragraph rendering for owner-written text
 │   └── *.tsx               # public components
 ├── content/                # all editable content
 ├── data/                   # env-backed config (contact channels, site URL)
