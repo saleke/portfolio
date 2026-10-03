@@ -67,29 +67,32 @@ h1 em { color: var(--accent); font-style: normal; }
 @keyframes blink { 50% { opacity: 0; } }
 /* Uses the same custom property as the shell width, so a different name length
    still reveals the full surname instead of clipping it. */
-/* Cycle: 0.56s empty, 1.82s typing, 1.4s held, 1.82s erasing, then 1.4s for
-   the box's rotation. Typing and erasing keep their original pace; the time
-   comes out of the hold, which is dead air anyway. */
-@keyframes brand-typing { 0%, 8% { width: 0; } 34%, 54% { width: var(--brand-ch, 5ch); } 80%, 100% { width: 0; } }
+/* Cycle: 0.42s empty, 1.82s typing, 1.26s held, 1.82s erasing, then 1.68s for
+   the box's rotation. Typing and erasing keep their original pace; the extra
+   rotation time comes out of the hold, which is dead air anyway. */
+@keyframes brand-typing { 0%, 6% { width: 0; } 32%, 50% { width: var(--brand-ch, 5ch); } 76%, 100% { width: 0; } }
 
 /* Applied to the box, so the border and the letter turn as one piece, the
    letter riding along like a label printed on the face.
 
    Four separate 90 degree turns rather than one continuous spin, each followed
-   by a short pause, so the box lands on a corner four times and you can see it
-   pass through each one. A `steps()` version snapped instantly between angles
-   and read as a flicker instead of a turn. Turn is 0.245s, pause 0.105s, and
-   the cycle reserves 1.4s for all four. Landing on 360 degrees equals 0, so
-   the loop restarts with no seam. */
+   by a pause, so the box lands on a corner four times and you can see it pass
+   through each one. A `steps()` version snapped instantly between angles and
+   read as a flicker instead of a turn.
+
+   Turn 0.245s, pause 0.175s. The pause is two thirds the length of the turn,
+   long enough to register as a separate beat rather than a stutter. Each unit
+   is 6% of the cycle and the four fill the last 24%, landing on 360 degrees
+   which equals 0, so the loop restarts with no seam. */
 @keyframes brand-mark-spin {
-  0%, 80% { transform: rotate(0deg); }
-  83.5% { transform: rotate(90deg); }
-  85% { transform: rotate(90deg); }
-  88.5% { transform: rotate(180deg); }
-  90% { transform: rotate(180deg); }
-  93.5% { transform: rotate(270deg); }
-  95% { transform: rotate(270deg); }
-  98.5% { transform: rotate(360deg); }
+  0%, 76% { transform: rotate(0deg); }
+  79.5% { transform: rotate(90deg); }
+  82% { transform: rotate(90deg); }
+  85.5% { transform: rotate(180deg); }
+  88% { transform: rotate(180deg); }
+  91.5% { transform: rotate(270deg); }
+  94% { transform: rotate(270deg); }
+  97.5% { transform: rotate(360deg); }
   100% { transform: rotate(360deg); }
 }
 @media (max-width: 900px) { .container { width: min(calc(100% - 36px), var(--max)); }.hero { grid-template-columns: minmax(0, 1fr); gap: 55px; min-height: auto; padding-top: 70px; }.hero-aside { justify-items: start; }.portrait-frame { width: min(100%, 500px); }.terminal-card { margin-top: -66px; margin-left: 28px; }.section-heading, .about-grid, .project-grid, .tech-grid, .learning-grid { padding-left: 0; }.contact-links { margin-left: 0; }.section-heading { grid-template-columns: 100px minmax(0, 1fr); }.about-grid { gap: 40px; }.tech-grid, .learning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.detail-layout { gap: 40px; } }
