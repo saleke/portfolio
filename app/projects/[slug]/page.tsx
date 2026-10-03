@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { getProject, getProjectSlugs } from "@/lib/projects";
 import { getSiteCopy } from "@/lib/content";
 import { Prose } from "@/components/Prose";
+import { ProjectShowcase } from "@/components/ProjectShowcase";
 
 /**
  * Case-study page.
@@ -64,8 +64,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
   if (!project) notFound();
 
-  const [cover, ...gallery] = project.images;
-
   return (
     <>
       <Navbar name={site.name} />
@@ -87,22 +85,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         </header>
 
+        {/*
+          Screenshots sit between the header and the prose, rather than at the
+          top and bottom of it. A visitor deciding whether to read should see the
+          work first, and a screenshot inside the article competes with the
+          paragraph it was placed next to. The component renders nothing when the
+          project has no images, so this needs no guard.
+        */}
+        <ProjectShowcase images={project.images} title={project.title} />
+
         <div className="detail-layout">
           <article className="detail-content">
-            {cover ? (
-              <figure className="detail-cover">
-                <Image
-                  src={cover.src}
-                  alt={cover.alt || `${project.title} screenshot`}
-                  width={cover.width}
-                  height={cover.height}
-                  sizes="(max-width: 900px) 100vw, 720px"
-                  placeholder={cover.blurDataUrl ? "blur" : "empty"}
-                  blurDataURL={cover.blurDataUrl}
-                />
-              </figure>
-            ) : null}
-
             {/*
               Each narrative section is a card rather than a full-bleed block of
               text divided by rules. The measure is capped well below the column
@@ -149,28 +142,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                     <li key={feature}>{feature}</li>
                   ))}
                 </ul>
-              </section>
-            ) : null}
-
-            {gallery.length > 0 ? (
-              <section className="detail-card">
-                <p className="detail-label">07 / SCREENSHOTS</p>
-                <div className="detail-gallery">
-                  {gallery.map((image) => (
-                    <figure key={image.src} className="detail-gallery-item">
-                      <Image
-                        src={image.src}
-                        alt={image.alt || `${project.title} screenshot`}
-                        width={image.width}
-                        height={image.height}
-                        sizes="(max-width: 900px) 100vw, 720px"
-                        placeholder={image.blurDataUrl ? "blur" : "empty"}
-                        blurDataURL={image.blurDataUrl}
-                      />
-                      {image.alt ? <figcaption>{image.alt}</figcaption> : null}
-                    </figure>
-                  ))}
-                </div>
               </section>
             ) : null}
           </article>

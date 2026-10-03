@@ -195,6 +195,11 @@ function readBlur(formData: FormData, index: number): string | undefined {
  * fields (`imageWidth-0`, `imageHeight-0`, ...). Pairing by index rather than by
  * position in the multipart body avoids any ambiguity.
  *
+ * A file may also carry `imageReplaces-<index>`, the `src` of a stored image it
+ * supersedes. That is returned alongside rather than applied here, because the
+ * ordering only makes sense against the project's current image list, which
+ * this function does not read.
+ *
  * Image bytes are kept as a `Buffer` and handed to `commitFiles` unencoded.
  * `commitFiles` base64-encodes exactly once on the way to GitHub; pre-encoding
  * here would encode them twice and produce a file that decodes to base64 text.
@@ -202,9 +207,13 @@ function readBlur(formData: FormData, index: number): string | undefined {
 async function collectNewImages(
   formData: FormData,
   slug: string,
-): Promise<{ images: ProjectImage[]; files: GitFile[] }> {
+  validReplaceTargets: ReadonlySet<string>,
+): Promise<{ images: ProjectImage[]; files: GitFile[]; replaces: Map<string, ProjectImage> }> {
   const images: ProjectImage[] = [];
   const files: GitFile[] = [];
+
+  /** New image keyed by the stored `src` it supersedes. */
+  const replaces = new Map<string, ProjectImage>();
 
   const uploads = formData.getAll("images").filter((entry): entry is File => entry instanceof File);
 
@@ -228,18 +237,36 @@ async function collectNewImages(
 
     const filename = buildImageFilename(bytes);
 
-    images.push({
+    const image: ProjectImage = {
       src: `${uploadUrlPrefix(slug)}/${filename}`,
       alt,
       width: realWidth,
       height: realHeight,
       blurDataUrl: readBlur(formData, index),
-    });
+    };
+
+    images.push(image);
+
+    /*
+      The target is validated against the project's own upload directory and
+      against the images actually stored on the branch. `replaces` decides a
+      position in an array, so an unvalidated value could reorder or resurrect
+      an unrelated path in the content file.
+    */
+    const target = formData.get(`imageReplaces-${index}`);
+    if (
+      typeof target === "string" &&
+      target.startsWith(`${uploadUrlPrefix(slug)}/`) &&
+      validReplaceTargets.has(target) &&
+      !replaces.has(target)
+    ) {
+      replaces.set(target, image);
+    }
 
     files.push({ path: `${uploadDirectory(slug)}/${filename}`, content: bytes });
   }
 
-  return { images, files };
+  return { images, files, replaces };
 }
 
 /**
@@ -321,7 +348,9 @@ export async function createProject(
   // The JSON and every image go into one commit, so a failure part-way through
   // cannot leave the content file referencing an image that was never written.
   try {
-    const result = await collectNewImages(formData, slug);
+    // A new project has no stored images, so nothing can be replaced. Passing an
+    // empty set makes `imageReplaces-*` inert rather than honoured.
+    const result = await collectNewImages(formData, slug, new Set());
     // Re-validate with the images merged in, so an over-length image list or a
     // malformed path fails here rather than in GitHub.
     const fields = collectFields(formData);
@@ -427,9 +456,39 @@ export async function updateProject(
   let files: GitFile[];
   let parsedProject: ReturnType<typeof projectSchema.parse>;
 
+  // The only images a new upload is allowed to claim as its target.
+  const replaceTargets = new Set(existing.images.map((image) => image.src));
+
   try {
-    const result = await collectNewImages(formData, slug);
-    const images = [...mergedKept, ...result.images];
+    const result = await collectNewImages(formData, slug, replaceTargets);
+
+    /*
+      Rebuilt from the stored order rather than concatenated, because that is
+      what makes a replace behave like a replace.
+
+      Appending new images to the kept ones looks equivalent until one of them
+      is a replacement: the first image is the cover used for the social card,
+      so replacing it and appending it would silently change which screenshot
+      the project card shows. Walking the stored list and substituting in place
+      keeps every untouched image exactly where the owner left it.
+    */
+    const images: ProjectImage[] = [];
+    for (const image of existing.images) {
+      const replacement = result.replaces.get(image.src);
+      if (replacement) {
+        images.push(replacement);
+      } else if (keptSrcs.has(image.src)) {
+        const merged = mergedKept.find((entry) => entry.src === image.src);
+        if (merged) images.push(merged);
+      }
+      // Neither kept nor replaced: the owner removed it.
+    }
+
+    // Genuinely new images, in the order they were attached.
+    const substituted = new Set(result.replaces.values());
+    for (const image of result.images) {
+      if (!substituted.has(image)) images.push(image);
+    }
 
     const parsed = projectSchema.safeParse({ ...collectFields(formData), images });
     if (!parsed.success) {

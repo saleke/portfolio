@@ -39,6 +39,13 @@ type Attachment = {
   height: number;
   blur: string;
   alt: string;
+  /**
+   * `src` of a stored image this one supersedes, sent as `imageReplaces-<index>`.
+   *
+   * Set only by a replace, never by an add. The server uses it to put the new
+   * image back in the replaced one's position rather than at the end of the list.
+   */
+  replaces?: string;
 };
 
 /** Draws `source` into a canvas scaled so neither edge exceeds `maxEdge`. */
@@ -72,6 +79,51 @@ function encode(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
   });
 }
 
+/**
+ * Decodes, resizes and re-encodes one picked file.
+ *
+ * Returns the prepared attachment, or `{ error }` with a message safe to show
+ * the owner. Defined outside the component so it is plainly an event-time
+ * function rather than part of a render pass.
+ */
+async function buildAttachment(
+  file: File,
+  fallbackAlt: string,
+): Promise<{ attachment: Attachment } | { error: string }> {
+  let bitmap: ImageBitmap | null = null;
+
+  try {
+    // `imageOrientation: "from-image"` honours the EXIF rotation flag. Phone
+    // screenshots carry it, and without this they would be saved sideways.
+    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+
+    const { canvas, width, height } = drawScaled(bitmap, MAX_EDGE);
+    const [blob, blur] = await Promise.all([
+      encode(canvas, WEBP_QUALITY),
+      createBlur(bitmap),
+    ]);
+
+    return {
+      attachment: {
+        key: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
+        blob,
+        url: URL.createObjectURL(blob),
+        width,
+        height,
+        blur,
+        // Default alt to the filename stem. Descriptive alt text is the owner's
+        // job, but an empty default silently harms accessibility. `fallbackAlt`
+        // covers a replacement, where the previous caption is the better guess.
+        alt: file.name.replace(/\.[^.]+$/, "").slice(0, 140) || fallbackAlt,
+      },
+    };
+  } catch {
+    return { error: `Could not read "${file.name}". Try a PNG, JPEG or WebP file.` };
+  } finally {
+    bitmap?.close();
+  }
+}
+
 /** Produces a tiny inline WebP used as the `next/image` blur placeholder. */
 async function createBlur(source: ImageBitmap): Promise<string> {
   const { canvas } = drawScaled(source, BLUR_EDGE);
@@ -92,6 +144,8 @@ export function ImageUploader({
   error?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  /** One file input per stored image, so "Replace" needs no shared target state. */
+  const replaceRefs = useRef(new Map<string, HTMLInputElement | null>());
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [kept, setKept] = useState<ProjectImage[]>(existing);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -142,35 +196,9 @@ export function ImageUploader({
     const added: Attachment[] = [];
 
     for (const file of selected) {
-      let bitmap: ImageBitmap | null = null;
-
-      try {
-        // `imageOrientation: "from-image"` honours the EXIF rotation flag. Phone
-        // screenshots carry it, and without this they would be saved sideways.
-        bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
-
-        const { canvas, width, height } = drawScaled(bitmap, MAX_EDGE);
-        const [blob, blur] = await Promise.all([
-          encode(canvas, WEBP_QUALITY),
-          createBlur(bitmap),
-        ]);
-
-        added.push({
-          key: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
-          blob,
-          url: URL.createObjectURL(blob),
-          width,
-          height,
-          blur,
-          // Default alt to the filename stem. Descriptive alt text is the
-          // owner's job, but an empty default silently harms accessibility.
-          alt: file.name.replace(/\.[^.]+$/, "").slice(0, 140),
-        });
-      } catch {
-        setLocalError(`Could not read "${file.name}". Try a PNG, JPEG or WebP file.`);
-      } finally {
-        bitmap?.close();
-      }
+      const result = await buildAttachment(file, "");
+      if ("error" in result) setLocalError(result.error);
+      else added.push(result.attachment);
     }
 
     if (added.length > 0) {
@@ -182,6 +210,44 @@ export function ImageUploader({
     }
 
     setBusy(false);
+  }
+
+  /**
+   * Swaps a stored image for a newly picked file.
+   *
+   * The old file is removed and the new one carries `replaces`, which the
+   * server uses to put the result back in the same position. Without that
+   * marker a replacement would land at the end of the list, and since the first
+   * image is the cover used for the social card, replacing the first screenshot
+   * would silently change it.
+   *
+   * The limit is not re-checked: the replaced image leaves `kept` as the new one
+   * enters `attachments`, so the total does not grow.
+   */
+  async function replaceExisting(src: string, files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+
+    setLocalError(null);
+    setBusy(true);
+
+    const previousAlt = kept.find((item) => item.src === src)?.alt ?? "";
+    const result = await buildAttachment(file, previousAlt);
+    setBusy(false);
+
+    if ("error" in result) {
+      setLocalError(result.error);
+      return;
+    }
+
+    // Dropping the old entry from `kept` is what marks its file for deletion on
+    // the server, and it frees the slot so the count does not exceed the limit.
+    setKept((current) => current.filter((item) => item.src !== src));
+    setAttachments((current) => {
+      const next = [...current, { ...result.attachment, replaces: src }];
+      syncInput(next);
+      return next;
+    });
   }
 
   function removeAttachment(key: string) {
@@ -211,9 +277,24 @@ export function ImageUploader({
 
   return (
     <div className="admin-uploader">
+      {/*
+        `name="images"` is what makes the upload reach the server at all.
+
+        The action reads `formData.getAll("images")`, and an input without a
+        `name` is never added to the FormData. Omitting it produced no error and
+        no failed save: the action received an empty list, wrote the project with
+        an empty `images` array, and committed successfully, so every image was
+        discarded while the form reported success.
+
+        The file list is not read from this input directly. `syncInput` assigns
+        `input.files` from a DataTransfer so it carries the already-resized WebP
+        blobs in attachment order, which is the order the server pairs with
+        `imageWidth-<index>`.
+      */}
       <input
         ref={inputRef}
         type="file"
+        name="images"
         accept="image/png,image/jpeg,image/webp,image/avif"
         multiple
         className="sr-only"
@@ -276,14 +357,47 @@ export function ImageUploader({
               <input type="hidden" name="existingImage" value={image.src} />
               <input type="hidden" name={`existingAlt-${index}`} value={image.alt} />
 
-              <button
-                type="button"
-                className="admin-uploader-remove"
-                onClick={() => removeExisting(image.src)}
-              >
-                Remove
-                <span className="sr-only"> {image.alt || image.src}</span>
-              </button>
+              {/*
+                One file input per stored image rather than a shared one. A
+                single input would need the target tracked in state and cleared
+                when the picker is dismissed, and a dismissed picker fires no
+                event, which leaves the stale target to silently replace the
+                wrong image on the next pick. These cannot leak into each other.
+              */}
+              <input
+                ref={(node) => {
+                  replaceRefs.current.set(image.src, node);
+                }}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/avif"
+                className="sr-only"
+                onChange={(event) => {
+                  void replaceExisting(image.src, event.target.files);
+                  // Reset so re-picking the same file still fires a change event.
+                  event.target.value = "";
+                }}
+              />
+
+              <div className="admin-uploader-actions">
+                <button
+                  type="button"
+                  className="admin-uploader-replace"
+                  onClick={() => replaceRefs.current.get(image.src)?.click()}
+                  disabled={busy}
+                >
+                  Replace
+                  <span className="sr-only"> {image.alt || image.src}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="admin-uploader-remove"
+                  onClick={() => removeExisting(image.src)}
+                >
+                  Remove
+                  <span className="sr-only"> {image.alt || image.src}</span>
+                </button>
+              </div>
             </li>
           ))}
 
@@ -323,6 +437,13 @@ export function ImageUploader({
               <input type="hidden" name={`imageHeight-${index}`} value={item.height} />
               <input type="hidden" name={`imageBlur-${index}`} value={item.blur} />
               <input type="hidden" name={`imageAlt-${index}`} value={item.alt} />
+              {/* Empty for a plain add. The server only honours a value that matches
+                  one of this project's own stored images. */}
+              <input
+                type="hidden"
+                name={`imageReplaces-${index}`}
+                value={item.replaces ?? ""}
+              />
 
               <button
                 type="button"
