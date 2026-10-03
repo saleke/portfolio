@@ -331,7 +331,7 @@ export function ProjectForm({ project }: { project?: Project }) {
 
       <fieldset className="admin-section">
         <legend>Images</legend>
-        <ImageUploader existing={project?.images ?? []} />
+        <ImageUploader existing={project?.images ?? []} status={state.status} />
       </fieldset>
 
       <div className="admin-savebar">

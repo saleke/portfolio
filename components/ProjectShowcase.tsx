@@ -170,18 +170,39 @@ export function ProjectShowcase({
               {String(images.length).padStart(2, "0")}
             </p>
 
-            <div className="showcase-lightbox-actions">
-              <button type="button" onClick={() => step(-1)} aria-label="Previous image">
-                <span aria-hidden="true">←</span>
-              </button>
-              <button type="button" onClick={() => step(1)} aria-label="Next image">
-                <span aria-hidden="true">→</span>
-              </button>
-              <button ref={closeRef} type="button" onClick={close} aria-label="Close">
-                <span aria-hidden="true">✕</span>
-              </button>
-            </div>
+            <button
+              ref={closeRef}
+              type="button"
+              className="showcase-lightbox-close"
+              onClick={close}
+              aria-label="Close"
+            >
+              <span aria-hidden="true">✕</span>
+            </button>
           </div>
+
+          {/*
+            Previous and next sit on the left and right edges, vertically
+            centred against the image, rather than grouped in the top bar. That
+            is where the controls for a full-bleed image belong: the position
+            matches the direction of travel, and the target stays reachable by a
+            thumb without the hand travelling to the top of the screen.
+
+            They are siblings of the figure rather than children of it, so they
+            are never clipped by the figure's own bounds and do not move when
+            the image does. On a single-image project they are omitted rather
+            than disabled, because an arrow that cannot move anywhere is noise.
+          */}
+          {images.length > 1 ? (
+            <button
+              type="button"
+              className="showcase-lightbox-nav showcase-lightbox-nav-prev"
+              onClick={() => step(-1)}
+              aria-label="Previous image"
+            >
+              <span aria-hidden="true">←</span>
+            </button>
+          ) : null}
 
           {/*
             Keyed on `src` so moving to another image remounts the figure and
@@ -201,6 +222,17 @@ export function ProjectShowcase({
               priority
             />
           </figure>
+
+          {images.length > 1 ? (
+            <button
+              type="button"
+              className="showcase-lightbox-nav showcase-lightbox-nav-next"
+              onClick={() => step(1)}
+              aria-label="Next image"
+            >
+              <span aria-hidden="true">→</span>
+            </button>
+          ) : null}
 
           {active.alt ? <figcaption className="showcase-lightbox-alt">{active.alt}</figcaption> : null}
         </div>

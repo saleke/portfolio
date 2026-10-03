@@ -139,9 +139,12 @@ async function createBlur(source: ImageBitmap): Promise<string> {
 export function ImageUploader({
   existing = [],
   error,
+  status = "idle",
 }: {
   existing?: ProjectImage[];
   error?: string;
+  /** Result of the publish action, so uploads can be retired once they land. */
+  status?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   /** One file input per stored image, so "Replace" needs no shared target state. */
@@ -272,6 +275,51 @@ export function ImageUploader({
       for (const item of live) URL.revokeObjectURL(item.url);
     };
   }, [attachments]);
+
+  /*
+    Adopt the stored list again once it actually changes.
+
+    `kept` is seeded from `existing` only on mount, because it is also the
+    target of the owner's Remove buttons and alt text edits, and a state reset
+    on every render would throw those away mid-edit. So the reset is gated on
+    the set of stored paths changing, which happens exactly once: when the save
+    lands and the refreshed page reports the images that were just published.
+
+    Without that adoption the form keeps an empty `kept` after its first upload,
+    submits no `existingImage`, and the server deletes every published image on
+    the following save. `existing` is in the dependency list so the rule stays
+    satisfied; the signature is what decides whether to act.
+  */
+  const storedSignature = existing.map((image) => image.src).join("|");
+  const lastStoredRef = useRef(storedSignature);
+
+  useEffect(() => {
+    if (lastStoredRef.current === storedSignature) return;
+    lastStoredRef.current = storedSignature;
+    setKept(existing);
+  }, [storedSignature, existing]);
+
+  /*
+    Retire the uploads once the save succeeds.
+
+    They now exist in the repository and arrive back through `existing` as kept
+    images, so leaving them in `attachments` would upload the same picture a
+    second time under a new filename and orphan the file just written.
+  */
+  const lastStatusRef = useRef(status);
+
+  useEffect(() => {
+    if (lastStatusRef.current === "success" || status !== "success") return;
+    lastStatusRef.current = status;
+
+    setAttachments((current) => {
+      for (const item of current) URL.revokeObjectURL(item.url);
+      return [];
+    });
+
+    const input = inputRef.current;
+    if (input) input.value = "";
+  }, [status]);
 
   const message = localError ?? error;
 

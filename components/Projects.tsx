@@ -18,7 +18,11 @@ export async function Projects() {
       />
 
       <div className="project-grid">
-        {projects.map((project) => (
+        {projects.map((project) => {
+          // The first image is the cover here and in the social card metadata.
+          const hasCover = Boolean(project.images[0]);
+
+          return (
           <article className="project-card" key={project.slug}>
             <div className="project-card-top">
               <span className="project-eyebrow">{project.eyebrow}</span>
@@ -29,7 +33,7 @@ export async function Projects() {
               ) : null}
             </div>
 
-            {project.images[0] ? (
+            {hasCover ? (
               <div className="project-card-cover">
                 <Image
                   src={project.images[0].src}
@@ -46,7 +50,23 @@ export async function Projects() {
 
             <h3>{project.title}</h3>
             <p className="project-description">{project.description}</p>
-            <p className="project-context">{project.context}</p>
+
+            {/*
+              The second paragraph is only shown on a card with no screenshot.
+
+              With an image the card already carries a cover, a title and a
+              summary, and the cards sit in a two column grid, so adding a
+              fourth text block makes one row noticeably taller than the other
+              and the summary stops being scannable. The card is an invitation,
+              not the case study: the full text is one click away, and a visitor
+              who wants to read it is the one clicking through.
+
+              A project with neither an image nor context renders exactly as it
+              did before.
+            */}
+            {!hasCover && project.context ? (
+              <p className="project-context">{project.context}</p>
+            ) : null}
 
             <div className="tag-list">
               {project.technologies.map((technology) => (
@@ -76,7 +96,8 @@ export async function Projects() {
               ) : null}
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

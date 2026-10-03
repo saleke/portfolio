@@ -72,7 +72,7 @@ h1 em { color: var(--accent); font-style: normal; }
 @media (max-width: 640px) { .container { width: calc(100% - 28px); max-width: calc(100% - 28px); }.nav-wrap { position: relative; min-height: 66px; }.menu-toggle { position: relative; z-index: 52; display: grid; width: 44px; height: 44px; flex: 0 0 44px; place-items: center; padding: 0; touch-action: manipulation; }.site-nav { position: fixed; z-index: 50; top: 66px; right: 14px; left: 14px; display: none; max-height: calc(100dvh - 80px); overflow-y: auto; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--line); background: #111513; box-shadow: 0 18px 50px rgba(0,0,0,.45); }.site-nav.is-open { display: flex; }.site-nav a { width: 100%; min-height: 54px; padding: 16px; border-bottom: 1px solid var(--line); transform: none; }.site-nav a:hover { transform: none; }.site-nav a:last-child { border-bottom: 0; }.hero { padding-top: 56px; padding-bottom: 82px; }.kicker { margin-bottom: 32px; }.hero-lede { font-size: 1rem; }.stack-line { gap: 7px 12px; line-height: 1.8; }.stack-line span:not(:last-child)::after { margin-left: 12px; }.hero-actions .button { flex: 1; justify-content: center; }.terminal-card { width: calc(100% - 22px); max-width: calc(100% - 22px); margin-right: 0; margin-left: 22px; box-shadow: 8px 8px 0 rgba(196,242,105,.08); }.section { padding-top: 74px; padding-bottom: 82px; }.section-heading { display: block; margin-bottom: 40px; }.section-index { margin-bottom: 18px; }.section-heading h2 { font-size: 2.5rem; }.about-grid, .project-grid, .tech-grid, .learning-grid, .detail-layout { min-width: 0; grid-template-columns: minmax(0, 1fr); }.about-lede { font-size: 1.7rem; }.project-card { min-width: 0; min-height: 360px; padding: 22px; }.project-card h3 { margin-top: 42px; }.tech-grid, .learning-grid { gap: 24px; }.learning-item { min-width: 0; min-height: auto; }.contact-links { width: 100%; max-width: 100%; }.contact-links a { width: 100%; grid-template-columns: 62px minmax(0, 1fr) 18px; gap: 8px; }.contact-links strong { font-size: .92rem; line-height: 1.35; }.project-detail { padding-top: 48px; }.back-link { margin-bottom: 50px; }.detail-header h1 { font-size: 3.2rem; }.detail-header > p:not(.project-eyebrow) { font-size: 1rem; }.detail-layout { padding-top: 40px; }.detail-aside { order: -1; }.footer-inner { min-width: 0; display: grid; }.footer-inner > * { min-width: 0; overflow-wrap: anywhere; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; }.button, .project-card, .contact-links a, .site-nav a, .portrait-frame img { transition: none; }.cursor, .brand-name { animation: none; }.brand-name { width: var(--brand-ch, 5ch); } /* Showcase motion is injected by the component, so the global block cannot
    reach it. The component ships its own reduced-motion override for exactly
-   this reason; this line only covers the static hover transitions. */ .showcase-frame img, .showcase-frame::after, .showcase-lightbox-actions button { transition: none; }.showcase-trigger:hover .showcase-frame img, .showcase-trigger:focus-visible .showcase-frame img { transform: none; } }
+   this reason; this line only covers the static hover transitions. */ .showcase-frame img, .showcase-frame::after, .showcase-lightbox-close, .showcase-lightbox-nav { transition: none; }.showcase-trigger:hover .showcase-frame img, .showcase-trigger:focus-visible .showcase-frame img { transform: none; } }
 
 /* ============================================================
    Project imagery
@@ -124,27 +124,42 @@ h1 em { color: var(--accent); font-style: normal; }
 
 /* Lightbox ---------------------------------------------------- */
 
-.showcase-lightbox { position: fixed; z-index: 60; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 14px; padding: 22px; background: rgba(6,8,7,.94); backdrop-filter: blur(14px); overflow: auto; overscroll-behavior: contain; }
+/* Horizontal padding reserves a gutter for the arrow buttons, so the image is
+   centred between them and can never sit underneath one. */
+.showcase-lightbox { position: fixed; z-index: 60; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 14px; padding: 22px 78px; background: rgba(6,8,7,.94); backdrop-filter: blur(14px); overscroll-behavior: contain; }
 
 .showcase-lightbox-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .showcase-lightbox-count { margin: 0; color: var(--ink); font-family: monospace; font-size: 12px; letter-spacing: .14em; }
-.showcase-lightbox-actions { display: flex; gap: 8px; }
-.showcase-lightbox-actions button { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 15px; cursor: pointer; transition: border-color .2s ease, color .2s ease, background-color .2s ease; }
-.showcase-lightbox-actions button:hover { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+
+.showcase-lightbox-close,
+.showcase-lightbox-nav { display: grid; place-items: center; border: 1px solid var(--line); background: rgba(11,13,12,.6); color: var(--ink); font-size: 15px; cursor: pointer; transition: border-color .2s ease, color .2s ease, background-color .2s ease; }
+.showcase-lightbox-close { width: 40px; height: 40px; }
+.showcase-lightbox-close:hover,
+.showcase-lightbox-nav:hover { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+
+/* Vertically centred on the overlay rather than nested in the figure, so the
+   buttons stay put as the image changes size. */
+.showcase-lightbox-nav { position: absolute; top: 50%; width: 48px; height: 48px; transform: translateY(-50%); font-size: 17px; }
+.showcase-lightbox-nav-prev { left: 16px; }
+.showcase-lightbox-nav-next { right: 16px; }
 
 /* `contain` stops a wide screenshot from forcing the overlay to scroll
    sideways, which would otherwise let the page behind show at the edges. */
 .showcase-lightbox-figure { display: grid; min-height: 0; margin: 0; place-items: center; contain: layout; }
 .showcase-lightbox-figure img { width: auto; max-width: 100%; height: auto; max-height: calc(100dvh - 150px); border: 1px solid var(--line); object-fit: contain; }
 
-.showcase-lightbox-alt { margin: 0; color: var(--muted); font-family: monospace; font-size: 11px; line-height: 1.6; text-align: center; }
+/* Scrolled in place rather than by growing the overlay, which would push the
+   caption off-screen and scroll the arrows away with it. */
+.showcase-lightbox-alt { max-height: 6.5em; margin: 0; overflow-y: auto; color: var(--muted); font-family: monospace; font-size: 11px; line-height: 1.6; text-align: center; }
 
 @media (max-width: 640px) {
   .showcase { padding-top: 40px; }
   .showcase-grid { gap: 12px; }
-  .showcase-lightbox { padding: 14px; gap: 10px; }
+  .showcase-lightbox { padding: 14px 52px; gap: 10px; }
   .showcase-lightbox-figure img { max-height: calc(100dvh - 130px); }
-  .showcase-lightbox-actions button { width: 44px; height: 44px; }
+  .showcase-lightbox-nav { width: 40px; height: 40px; }
+  .showcase-lightbox-nav-prev { left: 6px; }
+  .showcase-lightbox-nav-next { right: 6px; }
 }
 
 .detail-aside-links { display: grid; gap: 10px; }

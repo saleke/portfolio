@@ -528,6 +528,18 @@ export async function updateProject(
   revalidatePath(`/projects/${slug}`);
   revalidatePath("/admin/projects");
 
+  /*
+    The edit page itself, which the two lines above do not cover.
+
+    Without it the form the owner is looking at is never re-rendered, so it
+    keeps the image list it had before the save: the images just published are
+    never adopted as stored ones, and the files still sit in local state. On the
+    next save the form submits no `existingImage` at all while the server still
+    holds the published set, so every one of those images is treated as removed
+    and deleted. Removing a single image appeared to delete all of them.
+  */
+  revalidatePath(`/admin/projects/${slug}`);
+
   return { status: "success", message: `Saved. ${PUBLISHED_NOTE}` };
 }
 
