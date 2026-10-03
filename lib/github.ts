@@ -39,6 +39,8 @@ export class GitHubError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    /** Raw response body, kept so a lost race can be told from a real rejection. */
+    readonly detail = "",
   ) {
     super(message);
     this.name = "GitHubError";
@@ -91,6 +93,24 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
+/**
+ * Whether a failed ref update means "someone pushed first", which is worth
+ * retrying, rather than a permanent rejection, which is not.
+ *
+ * A 409 from GitHub is always a stale ref. For 422 the status alone is
+ * ambiguous, so the response body decides: GitHub says "not a fast forward" for
+ * a real race and "Reference update failed" for the rest. Matching on the body
+ * keeps a permission or protection problem from being retried three times and
+ * then reported as a phantom conflict.
+ */
+function isStaleRef(error: GitHubError): boolean {
+  if (error.status === 409) return true;
+  if (error.status !== 422) return false;
+  return /not a fast forward|fast-forward|behind|Reference update failed.*non-fast/i.test(
+    error.detail,
+  );
+}
+
 type FetchOptions = Omit<RequestInit, "body"> & { body?: unknown };
 
 /** Performs an authenticated request against the GitHub API. */
@@ -115,7 +135,7 @@ async function api(path: string, options: FetchOptions = {}) {
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new GitHubError(describe(response.status, detail), response.status);
+    throw new GitHubError(describe(response.status, detail), response.status, detail);
   }
 
   return response.json();
@@ -130,7 +150,19 @@ function describe(status: number, detail: string): string {
   }
   if (status === 404) return "Repository or branch not found. Check GITHUB_REPO_OWNER, GITHUB_REPO_NAME and GITHUB_BRANCH.";
   if (status === 409) return "Someone else pushed to the repository at the same time. Try again.";
-  if (status === 422) return `GitHub rejected the commit as invalid: ${detail.slice(0, 300)}`;
+  if (status === 422) {
+    // The same status covers a failed ref update and a rejected commit, and the
+    // owner can only act on one of them. Naming the likely cause is the
+    // difference between a fixable instruction and a dead end.
+    const message = detail.match(/"message"\s*:\s*"([^"]+)"/)?.[1] ?? detail.slice(0, 300);
+    if (/protected branch/i.test(detail)) {
+      return "GitHub refused to update the branch because it is protected. Either allow the admin token to bypass it, or set GITHUB_BRANCH to a branch that accepts direct pushes.";
+    }
+    if (/Reference update failed/i.test(detail)) {
+      return `GitHub could not update the branch: ${message}`;
+    }
+    return `GitHub rejected the commit as invalid: ${message}`;
+  }
   return `GitHub request failed (${status}). ${detail.slice(0, 300)}`;
 }
 
@@ -218,6 +250,19 @@ export async function commitFiles(files: GitFile[], message: string): Promise<Co
       body: {
         message,
         tree: (tree as { sha: string }).sha,
+        // `parents` is the whole reason a retry can succeed.
+        //
+        // When omitted, GitHub parents the commit onto the *default branch* head
+        // rather than the `headSha` this loop read. The commit is then built on
+        // top of whatever `main` happened to be at creation time, so moving
+        // `config.branch` to it is a fast-forward only by accident. Whenever the
+        // two disagree — a renamed default branch, a branch that is behind
+        // `main` — every attempt fails the same way and the loop exhausts
+        // claiming "the repository kept changing" when nothing was racing at
+        // all. Naming the parent explicitly makes the commit a child of the
+        // tree we based it on, so the ref update is checked against exactly
+        // that tree and a retry after a real race genuinely converges.
+        parents: [headSha],
         // The author is fixed so commits are attributable and reproducible,
         // rather than appearing as an anonymous bot.
         author: {
@@ -235,10 +280,13 @@ export async function commitFiles(files: GitFile[], message: string): Promise<Co
       });
       return { commitSha };
     } catch (error) {
-      // A non-fast-forward means someone pushed between our read and our write.
-      // Retry against the new head rather than failing the owner's save.
-      // GitHub returns 409 for a stale ref and 422 for a conflict; both are retryable.
-      if (error instanceof GitHubError && (error.status === 409 || error.status === 422)) continue;
+      // Only a genuine "the branch moved under us" failure is retryable. A 409
+      // is that, but a 422 is GitHub's catch-all and also covers "Reference
+      // update failed" for causes retrying cannot fix — a protected branch, or a
+      // repository configured to disallow this token from writing. Retrying
+      // those three times only replaces the true message with a misleading
+      // "the repository kept changing", so the distinction is made here.
+      if (error instanceof GitHubError && isStaleRef(error)) continue;
       throw error;
     }
   }
