@@ -52,7 +52,13 @@ export function Navbar({ name }: { name: string }) {
           onClick={() => setOpen(false)}
           aria-label={`${name} home`}
         >
-          <span className="brand-mark">{initial}</span>
+          <span className="brand-mark">
+            {/* The letter is its own element so only it turns. Rotating the
+                wrapper would take the border with it, and a square looks the
+                same at 0, 90, 180 and 270 degrees, so the box would appear
+                frozen while the letter spun inside it. */}
+            <span className="brand-mark-letter">{initial}</span>
+          </span>
           <span className="brand-name-shell" aria-hidden="true">
             <span className="brand-name">{surname}</span>
           </span>
