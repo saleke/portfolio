@@ -3,24 +3,23 @@
 An accessible, responsive developer portfolio for presenting my projects,
 technical direction, and current learning honestly and clearly.
 
-The portfolio provides a concise view of what I build, the technologies I work
-with, and the technical direction I am developing and it can all be edited
-from a password-protected admin area without touching code.
+The portfolio presents my projects, the technologies I work with, and the
+technical direction I am developing. All of it is editable from a
+password-protected admin area without touching code.
 
 ## Tech Stack
 
 * **Next.js** | React framework
 * **React** | UI development
 * **TypeScript** | Type-safe application development
-* **CSS** | Styling, hand written in `app/globals.css`
+* **Tailwind CSS** | Base layer and preflight reset
+* **CSS** | Component styling, hand written in `app/globals.css`
 * **Zod** | Runtime validation for every content document
 * **Vercel** | Deployment
 * **Git & GitHub** | Version control
 
-Styling is plain CSS, not utility classes. `app/globals.css` holds one custom
-stylesheet using CSS custom properties for the design tokens. Tailwind is
-installed and loaded for its preflight reset only; no Tailwind utilities are
-used anywhere in the project.
+Component styling is written by hand in `app/globals.css`, using CSS custom
+properties for the design tokens.
 
 ## Developer Stack
 
@@ -71,20 +70,16 @@ pay for.
 ### Writing prose
 
 The four narrative fields on a case study (overview, problem, solution,
-architecture) treat a blank line as a paragraph break, and a single newline as a
-line break. This matters: rendering that text as raw HTML would collapse every
-blank line into a single space, so typed structure would silently vanish before a
-reader saw it. `components/Prose.tsx` splits the text instead.
-
-Sections render as cards with prose capped at a `62ch` reading measure, so a long
-paragraph wraps where it is comfortable to read rather than across the full
-column.
+architecture) treat a blank line as a paragraph break and a single newline as a
+line break. Rendering that text as raw HTML would collapse every blank line into
+a single space, so typed structure would not reach the reader.
+`components/Prose.tsx` splits the text into paragraphs instead, and sections are
+displayed as cards with prose capped at a `62ch` reading measure.
 
 ### Editing and code changes at the same time
 
 Admin saves write content commits to `main` directly, so a local branch and the
-remote can move apart while you work. This repo is configured to rebase rather
-than merge:
+remote can move apart while you work. This repo is configured to rebase:
 
 ```bash
 git config pull.rebase true       # replay local commits on top of remote ones
@@ -96,19 +91,19 @@ The two sides do not overlap. Admin saves can only write the paths declared in
 `lib/repo-paths.ts`: the project JSON files, the three site documents, and
 uploads. Code changes touch neither, so a rebase applies without conflicts.
 
-One ordering caveat that git cannot solve: an admin save triggers a Vercel
-rebuild. Publishing while a build is still in flight ships code that does not
-match the newest content. Wait for the build to settle before saving again.
+An admin save triggers a Vercel rebuild. Publishing while a build is still in
+flight ships code that does not match the newest content, so wait for the build
+to settle before saving again.
 
 ### Setup
 
-**1. Add the secrets.** Copy `.env.example` to `.env.local` and fill it in:
+**1. Add the secrets.** Copy `.env.example` to `.env.local` and fill it in.
 
 ```bash
 cp .env.example .env.local
 ```
 
-**2. Generate the admin password hash.** The password itself is never stored:
+**2. Generate the admin password hash.** The password itself is never stored.
 
 ```bash
 node scripts/hash-password.mjs "your password"
@@ -301,12 +296,10 @@ which is what makes an admin save go live.
 │   └── projects/[slug]/    # public case studies
 ├── components/
 │   ├── admin/              # admin-only components
-│   ├── Prose.tsx           # paragraph rendering for owner-written text
-│   └── *.tsx               # public components
+│   └── *.tsx               # public components, including Prose.tsx
 ├── content/                # all editable content
 ├── data/                   # env-backed config (contact channels, site URL)
 ├── lib/                    # schema, loaders, auth, GitHub, images
-├── app/globals.css         # the entire stylesheet, public and admin
 ├── public/uploads/         # images published through the admin
 ├── scripts/                # hash-password, validate-content
 ├── .env.example
@@ -327,4 +320,4 @@ GitHub: [@saleke](https://github.com/saleke)
 
 ---
 
-Built with Next.js, React, TypeScript, and hand written CSS.
+Built with Next.js, React, TypeScript, Tailwind CSS, and Zod.
