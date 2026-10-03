@@ -452,9 +452,17 @@ h1 em { color: var(--accent); font-style: normal; }
 .admin-status.is-success { border-color: #33513a; background: rgba(120,200,140,.06); color: #8fd6a4; }
 .admin-status.is-error { border-color: #6b3730; background: rgba(255,157,138,.06); color: #ff9d8a; }
 .admin-status svg { flex: 0 0 auto; margin-top: 2px; }
-.admin-savebar { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px; border-top: 1px solid var(--line); background: linear-gradient(to top, var(--bg) 62%, transparent); padding: 20px 0 6px; }
-.admin-savebar .admin-note { flex: 1 1 320px; margin: 0; }
-.admin-savebar-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
+.admin-savebar { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 16px; margin-top: 8px; border-top: 1px solid var(--line); background: linear-gradient(to top, var(--bg) 62%, transparent); padding: 20px 0 6px; }
+
+/* Grouped with the buttons rather than pushed to the far edge.
+
+   Left flush, the note was the one element in the bar whose text began hard
+   against the sidebar's right border, so it read as though it belonged to the
+   navigation rather than to the form it sits below. It also describes what the
+   buttons do, so keeping it beside them puts the explanation next to the thing
+   it explains. */
+.admin-savebar .admin-note { flex: 0 1 auto; margin: 0; max-width: 54ch; text-align: right; }
+.admin-savebar-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 
 /* --- Buttons ------------------------------------------------------ */
 .admin-button { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 0 15px; font-family: monospace; font-size: 12px; cursor: pointer; text-decoration: none; transition: border-color .16s ease, background .16s ease, color .16s ease; }
@@ -540,7 +548,9 @@ h1 em { color: var(--accent); font-style: normal; }
   .admin-var { grid-template-columns: 20px minmax(0, 1fr); }
   .admin-var-state { grid-column: 2; }
   .admin-savebar { flex-direction: column-reverse; align-items: stretch; }
-  .admin-savebar-actions { margin-left: 0; }
+  /* Full width block here, so the desktop right alignment would leave a ragged
+     left edge on a full width paragraph. */
+  .admin-savebar .admin-note { text-align: left; }
   .admin-savebar-actions .admin-button { flex: 1 1 auto; }
 }
 
