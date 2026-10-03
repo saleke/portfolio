@@ -2,10 +2,10 @@
   "title": "Personal Portfolio",
   "description": "A content-driven Next.js portfolio with a password-protected admin area, so projects and public copy are published as commits without editing code.",
   "context": "Built to present full stack work, current learning, and technical direction honestly, and to keep that content current without a code change for every edit.",
-  "overview": "This portfolio is a content-driven Next.js application that presents the projects, technologies, and technical direction I am working on, and lets me publish all of it without editing code.\n\nEvery visible string on the site is a JSON document in `content/`, validated by Zod at build time. Nothing is hardcoded inside a component, so a change to the copy is a change to data rather than a redeploy of logic.",
-  "problem": "Work-in-progress projects change faster than presentation code does. A portfolio that keeps its content inside components needs a code change and a redeploy for every correction to a sentence, which quietly discourages writing copy that was never tested against a reader.\n\nThere is a second problem specific to a developer in training. The honest version of a portfolio shows unfinished work, current direction, and the reasoning behind decisions. That is a large amount of prose to keep current, and maintaining it by hand is the reason projects stop being documented at all.",
-  "solution": "The site separates content from presentation. Four documents in `content/` hold all public copy, validated by Zod so a malformed value fails the build rather than shipping. Presentational components read those documents through cached loaders and keep the same shapes regardless of where the data came from.\n\nA password-protected admin area writes those same documents as commits to this repository through the GitHub API, and that commit triggers the Vercel build which publishes the change. This provides a normal editing surface without introducing a database, a separate CMS, or another service to maintain. Unsubmitted form input is preserved locally, so a refresh or a rejected save does not lose work in progress.",
-  "architecture": "Next.js App Router, with the public pages prerendered at build time and the admin routes rendered on demand behind a session check. Public pages read the cached content loaders. The admin reads and writes through Server Actions, each of which validates the session itself because a Server Action is a public HTTP endpoint and its id is not a secret.\n\nContent is described by Zod schemas in `lib/`, and the TypeScript types are derived from those schemas so the two cannot drift apart. Writes go through the GitHub Git Data API so that a project and its images land in a single commit. Styling is one hand written stylesheet in `app/globals.css`, using CSS custom properties for the design tokens.",
+  "overview": "This portfolio is a content-driven Next.js application that presents the projects, technologies, and technical direction I am working on, and lets me publish all of it without editing code.\r\n\r\nEvery visible string on the site is a JSON document in `content/`, validated by Zod at build time. Nothing is hardcoded inside a component, so a change to the copy is a change to data rather than a redeploy of logic.",
+  "problem": "Work-in-progress projects change faster than presentation code does. A portfolio that keeps its content inside components needs a code change and a redeploy for every correction to a sentence, which quietly discourages writing copy that was never tested against a reader.\r\n\r\nThere is a second problem specific to a developer in training. The honest version of a portfolio shows unfinished work, current direction, and the reasoning behind decisions. That is a large amount of prose to keep current, and maintaining it by hand is the reason projects stop being documented at all.",
+  "solution": "The site separates content from presentation. Four documents in `content/` hold all public copy, validated by Zod so a malformed value fails the build rather than shipping. Presentational components read those documents through cached loaders and keep the same shapes regardless of where the data came from.\r\n\r\nA password-protected admin area writes those same documents as commits to this repository through the GitHub API, and that commit triggers the Vercel build which publishes the change. This provides a normal editing surface without introducing a database, a separate CMS, or another service to maintain. Unsubmitted form input is preserved locally, so a refresh or a rejected save does not lose work in progress.",
+  "architecture": "Next.js App Router, with the public pages prerendered at build time and the admin routes rendered on demand behind a session check. Public pages read the cached content loaders. The admin reads and writes through Server Actions, each of which validates the session itself because a Server Action is a public HTTP endpoint and its id is not a secret.\r\n\r\nContent is described by Zod schemas in `lib/`, and the TypeScript types are derived from those schemas so the two cannot drift apart. Writes go through the GitHub Git Data API so that a project and its images land in a single commit. Styling is one hand written stylesheet in `app/globals.css`, using CSS custom properties for the design tokens.",
   "decisions": [
     "Keep content in JSON documents validated by Zod rather than in typed modules, so publishing is a data change and an invalid value fails the build instead of rendering.",
     "Write as a commit through the GitHub API rather than to a database, which keeps the repository the source of truth and adds no service to run or pay for.",
@@ -31,7 +31,57 @@
     "GitHub API",
     "Vercel"
   ],
-  "images": [],
+  "images": [
+    {
+      "src": "/uploads/projects/portfolio/dd9a62fbeed4-9e56b5.webp",
+      "alt": "Screenshot from 2026-10-03 18-11-07",
+      "width": 1283,
+      "height": 648,
+      "blurDataUrl": "data:image/webp;base64,UklGRg4CAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggIAAAAJABAJ0BKhAACAADgFolpAAC50XDQAD+9pCo8WMQAAAA"
+    },
+    {
+      "src": "/uploads/projects/portfolio/8b4784d5df33-781209.webp",
+      "alt": "Screenshot from 2026-10-03 18-11-35",
+      "width": 1283,
+      "height": 648,
+      "blurDataUrl": "data:image/webp;base64,UklGRhoCAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggLAAAANABAJ0BKhAACAADgFolnAAC51/9TBgAAP71d7h2CMN5uwpd+J36C4dwrAAA"
+    },
+    {
+      "src": "/uploads/projects/portfolio/693bdb79668a-d0aa81.webp",
+      "alt": "Screenshot from 2026-10-03 18-09-46",
+      "width": 1283,
+      "height": 648,
+      "blurDataUrl": "data:image/webp;base64,UklGRiYCAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggOAAAANABAJ0BKhAACAADgFolAE6AIeGO1DgAAP72imxftpK6ugstmIqpvYzq8DhuzSs8PXTIv05o4WAA"
+    },
+    {
+      "src": "/uploads/projects/portfolio/ecdbd8c83434-c7ba57.webp",
+      "alt": "Screenshot from 2026-10-03 18-09-26",
+      "width": 1283,
+      "height": 648,
+      "blurDataUrl": "data:image/webp;base64,UklGRhwCAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggLgAAANABAJ0BKhAACAADgFolnALsAPSrcmeAAP71me+8HE9SPCxpTLhz8goFXeUAAAA="
+    },
+    {
+      "src": "/uploads/projects/portfolio/efa9b1b07e52-7a7137.webp",
+      "alt": "Screenshot from 2026-10-03 18-09-09",
+      "width": 1283,
+      "height": 648,
+      "blurDataUrl": "data:image/webp;base64,UklGRhACAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggIgAAAFABAJ0BKhAACAADgFolnAAEAAAA/vIr/gakkquVxG4CAAA="
+    },
+    {
+      "src": "/uploads/projects/portfolio/6fed18c05d28-f25efb.webp",
+      "alt": "Screenshot from 2026-10-03 18-08-49",
+      "width": 1283,
+      "height": 648,
+      "blurDataUrl": "data:image/webp;base64,UklGRhgCAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggKgAAALABAJ0BKhAACAADgFolnAACnVjXq2AA/vV74CnzGbJSQYC3Rek21CAAAA=="
+    },
+    {
+      "src": "/uploads/projects/portfolio/a1aacfdfc1f7-87351f.webp",
+      "alt": "Screenshot from 2026-10-03 18-17-56",
+      "width": 1283,
+      "height": 648,
+      "blurDataUrl": "data:image/webp;base64,UklGRhwCAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggLgAAAFABAJ0BKhAACAADgFoljAAEM4AA/vOZgrRIX/kf2pwGPIm1PIZp8K/AiK4AAAA="
+    }
+  ],
   "status": "in-progress",
   "featured": true,
   "githubUrl": "https://github.com/saleke",
