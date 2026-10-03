@@ -1,15 +1,7 @@
 {
   "title": "School Website",
-  "eyebrow": "PROJECT / 03",
   "description": "A work in progress Next.js application for a school platform, with the product direction still taking shape.",
   "context": "An early-stage repository focused on establishing the foundation for a school-focused web application.",
-  "technologies": [
-    "Next.js",
-    "React",
-    "TypeScript"
-  ],
-  "status": "in-progress",
-  "githubUrl": "https://github.com/saleke/school-website",
   "overview": "School Website is an early-stage Next.js application currently being developed as a school platform.",
   "problem": "The project is establishing a clear foundation for a school-focused web experience before its full feature set is defined.",
   "solution": "The repository currently provides the Next.js application foundation needed to develop and validate the product direction incrementally.",
@@ -24,5 +16,16 @@
     "React interface foundation",
     "TypeScript project setup"
   ],
-  "order": 3
+  "technologies": [
+    "Next.js",
+    "React",
+    "TypeScript"
+  ],
+  "images": [],
+  "status": "in-progress",
+  "featured": false,
+  "githubUrl": "https://github.com/saleke/school-website",
+  "liveUrl": "",
+  "eyebrow": "PROJECT / 03",
+  "order": 2
 }
