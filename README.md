@@ -12,10 +12,15 @@ from a password-protected admin area without touching code.
 * **Next.js** | React framework
 * **React** | UI development
 * **TypeScript** | Type-safe application development
-* **Tailwind CSS** | Styling
+* **CSS** | Styling, hand written in `app/globals.css`
 * **Zod** | Runtime validation for every content document
 * **Vercel** | Deployment
 * **Git & GitHub** | Version control
+
+Styling is plain CSS, not utility classes. `app/globals.css` holds one custom
+stylesheet using CSS custom properties for the design tokens. Tailwind is
+installed and loaded for its preflight reset only; no Tailwind utilities are
+used anywhere in the project.
 
 ## Developer Stack
 
@@ -301,6 +306,7 @@ which is what makes an admin save go live.
 ├── content/                # all editable content
 ├── data/                   # env-backed config (contact channels, site URL)
 ├── lib/                    # schema, loaders, auth, GitHub, images
+├── app/globals.css         # the entire stylesheet, public and admin
 ├── public/uploads/         # images published through the admin
 ├── scripts/                # hash-password, validate-content
 ├── .env.example
@@ -321,4 +327,4 @@ GitHub: [@saleke](https://github.com/saleke)
 
 ---
 
-Built with Next.js, React, TypeScript, and Tailwind CSS.
+Built with Next.js, React, TypeScript, and hand written CSS.
