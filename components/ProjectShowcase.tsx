@@ -135,13 +135,28 @@ export function ProjectShowcase({
                   alt={image.alt || `${title} screenshot ${index + 1}`}
                   width={image.width}
                   height={image.height}
-                  sizes="(max-width: 640px) 100vw, (max-width: 900px) 60vw, 560px"
+                  // Two widths, because the grid gives the lead image the whole
+                  // row and everything else an auto-fit column of roughly a
+                  // third of it. A single value covered neither: it
+                  // under-fetched the lead screenshot by more than half, so it
+                  // arrived soft, and over-fetched each of the others.
+                  //
+                  // The breakpoints mirror the CSS exactly. The lead image stops
+                  // spanning the full row at 760px, the container's side gutter
+                  // changes at 640px, and three columns only fit once the
+                  // container clears 3 * 340px plus two 14px gaps, which is a
+                  // 1048px container and so a 1096px viewport.
+                  sizes={
+                    index === 0
+                      ? "(max-width: 640px) calc(100vw - 28px), (max-width: 1228px) calc(100vw - 48px), 1180px"
+                      : "(max-width: 640px) calc(100vw - 28px), (max-width: 1096px) 47vw, 384px"
+                  }
                   placeholder={image.blurDataUrl ? "blur" : "empty"}
                   blurDataURL={image.blurDataUrl}
-                  // The showcase is close to the top of the page and its first
-                  // image is the largest paint, so it should not wait on the
-                  // lazy loader.
-                  priority={index === 0}
+                  // The lead image is the largest paint on the page, so it is
+                  // preloaded rather than left for the lazy loader to find.
+                  // `preload` replaced the deprecated `priority` in Next 16.
+                  preload={index === 0}
                 />
               </span>
 
@@ -219,7 +234,9 @@ export function ProjectShowcase({
               quality={75}
               placeholder={active.blurDataUrl ? "blur" : "empty"}
               blurDataURL={active.blurDataUrl}
-              priority
+              // Opened from a click, so the browser is already waiting on it.
+              // Lazy loading here would show an empty frame first.
+              preload
             />
           </figure>
 
