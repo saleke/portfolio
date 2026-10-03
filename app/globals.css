@@ -9,7 +9,9 @@ a { color: inherit; text-decoration: none; }
 a, button { -webkit-tap-highlight-color: transparent; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .container { width: min(calc(100% - 48px), var(--max)); max-width: 100%; margin-inline: auto; }
-.site-header { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid rgba(41,49,43,.75); background: rgba(11,13,12,.88); backdrop-filter: blur(16px); }
+/* No fill and no blur: the hero, its terminal card and the background lattice
+   all show through the bar. The bottom rule is the only chrome left. */
+.site-header { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid rgba(41,49,43,.75); background: transparent; }
 .nav-wrap { display: flex; min-height: 76px; align-items: center; justify-content: space-between; }
 .brand { display: inline-flex; gap: 10px; align-items: center; font-family: monospace; font-size: 17px; font-weight: 700; letter-spacing: .02em; }
 .brand-mark { display: grid; width: 28px; height: 28px; place-items: center; border: 1px solid var(--accent); color: var(--accent); font-family: Arial, sans-serif; font-size: 14px; animation: brand-mark-spin 7s cubic-bezier(.4, 0, .2, 1) infinite; }
@@ -65,6 +67,23 @@ h1 em { color: var(--accent); font-style: normal; }
 .detail-prose { max-width: 62ch; }.detail-prose p { margin: 0 0 1.1em; }.detail-prose p:last-child { margin-bottom: 0; }.detail-prose p + p { margin-top: 1.5em; }.detail-aside { align-self: start; border-top: 1px solid var(--accent); padding-top: 18px; }.detail-aside p { margin-bottom: 8px; }.detail-aside strong { display: block; margin-bottom: 28px; font-size: 1.25rem; font-weight: 400; }.detail-aside .button { width: 100%; justify-content: space-between; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @keyframes blink { 50% { opacity: 0; } }
+
+/* A see-through sticky bar leaves the nav links sitting directly on top of
+   body copy as the page scrolls, which is unreadable. Fade a backing in over
+   the first 140px so the top of the page stays clear while anything passing
+   underneath still has something to sit on.
+
+   Guarded on purpose: a browser without scroll timelines keeps the fully
+   transparent header, which is what was asked for, rather than silently
+   reverting to a solid bar. Delete this block for a header that never fills. */
+@supports (animation-timeline: scroll()) {
+  .site-header {
+    animation: header-scrim linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0px 140px;
+  }
+}
+@keyframes header-scrim { from { background: transparent; } to { background: rgba(11,13,12,.9); } }
 /* Uses the same custom property as the shell width, so a different name length
    still reveals the full surname instead of clipping it. */
 /* Cycle: 0.42s empty, 1.82s typing, 1.26s held, 1.82s erasing, then 1.68s for
@@ -97,7 +116,7 @@ h1 em { color: var(--accent); font-style: normal; }
 }
 @media (max-width: 900px) { .container { width: min(calc(100% - 36px), var(--max)); }.hero { grid-template-columns: minmax(0, 1fr); gap: 55px; min-height: auto; padding-top: 70px; }.hero-aside { justify-items: start; }.portrait-frame { width: min(100%, 500px); }.terminal-card { margin-top: -66px; margin-left: 28px; }.section-heading, .about-grid, .project-grid, .tech-grid, .learning-grid { padding-left: 0; }.contact-links { margin-left: 0; }.section-heading { grid-template-columns: 100px minmax(0, 1fr); }.about-grid { gap: 40px; }.tech-grid, .learning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.detail-layout { gap: 40px; } }
 @media (max-width: 640px) { .container { width: calc(100% - 28px); max-width: calc(100% - 28px); }.nav-wrap { position: relative; min-height: 66px; }.menu-toggle { position: relative; z-index: 52; display: grid; width: 44px; height: 44px; flex: 0 0 44px; place-items: center; padding: 0; touch-action: manipulation; }.site-nav { position: fixed; z-index: 50; top: 66px; right: 14px; left: 14px; display: none; max-height: calc(100dvh - 80px); overflow-y: auto; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--line); background: #111513; box-shadow: 0 18px 50px rgba(0,0,0,.45); }.site-nav.is-open { display: flex; }.site-nav a { width: 100%; min-height: 54px; padding: 16px; border-bottom: 1px solid var(--line); transform: none; }.site-nav a:hover { transform: none; }.site-nav a:last-child { border-bottom: 0; }.hero { padding-top: 56px; padding-bottom: 82px; }.kicker { margin-bottom: 32px; }.hero-lede { font-size: 1rem; }.stack-line { gap: 7px 12px; line-height: 1.8; }.stack-line span:not(:last-child)::after { margin-left: 12px; }.hero-actions .button { flex: 1; justify-content: center; }.terminal-card { width: calc(100% - 22px); max-width: calc(100% - 22px); margin-right: 0; margin-left: 22px; box-shadow: 8px 8px 0 rgba(196,242,105,.08); }.section { padding-top: 74px; padding-bottom: 82px; }.section-heading { display: block; margin-bottom: 40px; }.section-index { margin-bottom: 18px; }.section-heading h2 { font-size: 2.5rem; }.about-grid, .project-grid, .tech-grid, .learning-grid, .detail-layout { min-width: 0; grid-template-columns: minmax(0, 1fr); }.about-lede { font-size: 1.7rem; }.project-card { min-width: 0; min-height: 360px; padding: 22px; }.project-card h3 { margin-top: 42px; }.tech-grid, .learning-grid { gap: 24px; }.learning-item { min-width: 0; min-height: auto; }.contact-links { width: 100%; max-width: 100%; }.contact-links a { width: 100%; grid-template-columns: 62px minmax(0, 1fr) 18px; gap: 8px; }.contact-links strong { font-size: .92rem; line-height: 1.35; }.project-detail { padding-top: 48px; }.back-link { margin-bottom: 50px; }.detail-header h1 { font-size: 3.2rem; }.detail-header > p:not(.project-eyebrow) { font-size: 1rem; }.detail-layout { padding-top: 40px; }.detail-aside { order: -1; }.footer-inner { min-width: 0; display: grid; }.footer-inner > * { min-width: 0; overflow-wrap: anywhere; } }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; }.button, .project-card, .contact-links a, .site-nav a, .portrait-frame img { transition: none; }.cursor, .brand-name, .brand-mark { animation: none; }.brand-name { width: var(--brand-ch, 5ch); } /* Showcase motion is injected by the component, so the global block cannot
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; }.button, .project-card, .contact-links a, .site-nav a, .portrait-frame img { transition: none; }.cursor, .brand-name, .brand-mark, .login-card, .login-prompt-caret { animation: none; }.brand-name { width: var(--brand-ch, 5ch); } /* Showcase motion is injected by the component, so the global block cannot
    reach it. The component ships its own reduced-motion override for exactly
    this reason; this line only covers the static hover transitions. */ .showcase-frame img, .showcase-frame::after, .showcase-lightbox-close, .showcase-lightbox-nav { transition: none; }.showcase-trigger:hover .showcase-frame img, .showcase-trigger:focus-visible .showcase-frame img { transform: none; } }
 
@@ -267,19 +286,63 @@ h1 em { color: var(--accent); font-style: normal; }
 .admin-note { margin: 0 0 20px; color: var(--muted); font-size: .86rem; line-height: 1.6; }
 .admin-note code { font-family: monospace; font-size: .8rem; }
 .admin-panel { border: 1px solid var(--line); background: var(--surface); padding: 28px; }
-.admin-panel-narrow { width: min(100%, 420px); }
 .admin-panel h1 { margin: 0 0 16px; font-size: 1.5rem; font-weight: 500; letter-spacing: -.03em; }
 
 /* The sign-in page renders outside the app shell, because it has to stay
    reachable while signed out. It therefore supplies its own full-height frame
-   and centring; without these two rules the panel sits flush to the top-left of
-   the viewport, which is the first thing the owner sees. */
+   and centring on top of this, which only sets the height. */
 .admin-main { min-height: 100dvh; }
 .admin-main-centered { display: grid; place-items: center; padding: 24px; }
 
 .admin-eyebrow { margin: 0 0 9px; color: var(--accent); font-family: monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
 .admin-subtle { margin: 0; color: var(--muted); font-size: .88rem; line-height: 1.55; }
 .admin-subtle code { font-family: monospace; font-size: .82rem; }
+
+/* --- Sign in ------------------------------------------------------- */
+
+/* The sign-in page renders outside the app shell, so it supplies its own
+   full-height frame and centring rather than inheriting the dashboard layout.
+   `.admin-main-centered` and `.admin-panel-narrow` used to do this and were
+   removed with it, since the login page was their only consumer. */
+.login-main { position: relative; display: grid; min-height: 100dvh; place-items: center; overflow: hidden; padding: 40px 24px; }
+
+/* A wide, very soft bloom behind the card. `pointer-events: none` because the
+   pseudo-element is a full-bleed overlay sitting above the page background, and
+   a low z-index because it is decoration that must stay behind the card. */
+.login-main::before { content: ""; position: absolute; top: 50%; left: 50%; z-index: 0; width: min(940px, 132vw); height: min(640px, 92vh); transform: translate(-50%, -50%); pointer-events: none; background: radial-gradient(ellipse at center, rgba(196,242,105,.085), transparent 62%); }
+
+@keyframes login-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+.login-card { position: relative; z-index: 1; width: min(100%, 440px); border: 1px solid var(--line); background: linear-gradient(180deg, var(--surface-2), var(--surface)); padding: 30px; box-shadow: 0 26px 70px rgba(0,0,0,.5); animation: login-in .5s cubic-bezier(.2, .7, .3, 1) both; }
+
+/* One bright hairline along the top edge, inset so it reads as a deliberate
+   detail rather than a full-bleed border. */
+.login-card::before { content: ""; position: absolute; top: -1px; left: 20px; width: 74px; height: 2px; background: var(--accent); }
+
+/* Mirrors the dashboard sidebar head exactly, so the two screens match. */
+.login-brand { display: flex; align-items: center; gap: 11px; }
+.login-brand-mark { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border: 1px solid var(--accent); color: var(--accent); font-family: Arial, sans-serif; font-size: 15px; }
+.login-brand-id { display: grid; min-width: 0; line-height: 1.3; }
+.login-brand-id strong { font-family: monospace; font-size: 12px; letter-spacing: .02em; }
+.login-brand-id small { overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Terminal prompt, the same device as the card on the public home page. The
+   caret reuses the existing blink keyframes. */
+.login-prompt { display: flex; align-items: center; gap: 8px; margin: 26px 0 0; border-top: 1px solid var(--line); padding-top: 18px; font-family: monospace; font-size: 12px; }
+.login-prompt-path { color: var(--muted); }
+.login-prompt-caret { display: inline-block; width: 7px; height: 14px; background: var(--accent); animation: blink 1.1s step-end infinite; }
+
+.login-head { margin: 22px 0 26px; }
+.login-title { margin: 0; font-size: 1.7rem; font-weight: 500; letter-spacing: -.035em; }
+.login-lede { margin: 12px 0 0; color: var(--muted); font-size: .88rem; line-height: 1.65; }
+
+.login-card .admin-form { gap: 18px; }
+
+/* Taller and monospaced so the field matches the terminal framing, with the
+   tracking spaced out the way a masked terminal input would read. */
+.login-card .admin-input { min-height: 46px; font-family: monospace; font-size: .95rem; letter-spacing: .12em; }
+
+.login-card .admin-button { width: 100%; min-height: 46px; }
 
 .admin-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-top: 18px; }
 .admin-standalone { display: grid; min-height: 100dvh; place-items: center; padding: 32px; }

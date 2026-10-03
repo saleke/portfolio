@@ -23,6 +23,7 @@ export function LoginForm() {
         <input
           id="password"
           name="password"
+          className="admin-input"
           type="password"
           autoComplete="current-password"
           required
