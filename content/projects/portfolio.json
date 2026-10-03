@@ -1,21 +1,7 @@
 {
   "title": "Personal Portfolio",
-  "eyebrow": "CASE STUDY / 02",
   "description": "A content-driven Next.js portfolio with a password-protected admin area, so projects and public copy are published as commits without editing code.",
   "context": "Built to present full stack work, current learning, and technical direction honestly, and to keep that content current without a code change for every edit.",
-  "technologies": [
-    "Next.js",
-    "React",
-    "TypeScript",
-    "Zod",
-    "Tailwind CSS",
-    "GitHub API",
-    "Vercel"
-  ],
-  "featured": true,
-  "status": "in-progress",
-  "githubUrl": "https://github.com/saleke",
-  "liveUrl": "",
   "overview": "This portfolio is a content-driven Next.js application that presents the projects, technologies, and technical direction I am working on, and lets me publish all of it without editing code.\n\nEvery visible string on the site is a JSON document in `content/`, validated by Zod at build time. Nothing is hardcoded inside a component, so a change to the copy is a change to data rather than a redeploy of logic.",
   "problem": "Work-in-progress projects change faster than presentation code does. A portfolio that keeps its content inside components needs a code change and a redeploy for every correction to a sentence, which quietly discourages writing copy that was never tested against a reader.\n\nThere is a second problem specific to a developer in training. The honest version of a portfolio shows unfinished work, current direction, and the reasoning behind decisions. That is a large amount of prose to keep current, and maintaining it by hand is the reason projects stop being documented at all.",
   "solution": "The site separates content from presentation. Four documents in `content/` hold all public copy, validated by Zod so a malformed value fails the build rather than shipping. Presentational components read those documents through cached loaders and keep the same shapes regardless of where the data came from.\n\nA password-protected admin area writes those same documents as commits to this repository through the GitHub API, and that commit triggers the Vercel build which publishes the change. This provides a normal editing surface without introducing a database, a separate CMS, or another service to maintain. Unsubmitted form input is preserved locally, so a refresh or a rejected save does not lose work in progress.",
@@ -36,6 +22,20 @@
     "Preserved form drafts across refreshes, failed saves, and navigation",
     "Accessible mobile navigation, sitemap, and social metadata"
   ],
+  "technologies": [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Zod",
+    "Tailwind CSS",
+    "GitHub API",
+    "Vercel"
+  ],
   "images": [],
-  "order": 2
+  "status": "in-progress",
+  "featured": true,
+  "githubUrl": "https://github.com/saleke",
+  "liveUrl": "",
+  "eyebrow": "CASE STUDY / 02",
+  "order": 1
 }
