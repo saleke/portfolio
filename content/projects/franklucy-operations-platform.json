@@ -1,0 +1,110 @@
+{
+  "title": "FrankLucy Operations Platform",
+  "description": "A multi branch operations platform for beverage and commercial distribution that runs point of sale, inventory, credit accounts, staff attendance, and end of shift cash reconciliation behind a single login. It gives a growing chain the control of an enterprise system without the cost of one.",
+  "context": "Built for a wholesale and retail distributor operating several branches under one owner, where the same products, staff, and cash pass through many hands in a single day. The assumption is that staff are busy and error prone, so every rule the business depends on is enforced by the server rather than left to memory or trust.",
+  "overview": "FrankLucy gives a multi branch distributor one place to sell, watch stock, manage staff, and balance the cash drawer. Stock, money, and permissions are all resolved on the server inside database transactions, so the numbers in the interface are the same numbers in the ledger. Every sale, receipt, transfer, payout, and correction leaves a trail showing who did it, when, and what changed.",
+  "problem": "Distributors typically run sales, stock, and cash in separate notebooks or spreadsheets, so no single number can be trusted. A crate sold from the shelf never reaches the inventory file, the cashier counts the drawer days later and the variance cannot be explained, and a customer who owes money exists only as a line in a book. When disputes happen there is no record of who adjusted a price, moved stock between branches, or approved a correction. Manual numbering of invoices also collides the moment two branches issue numbers on the same day.",
+  "solution": "The platform puts point of sale, a per branch inventory ledger, inter branch transfers, attendance, customer credit, and drawer reconciliation under one login with one identity model. Stock is held in base pieces, so selling one crate and one bottle from the same cart can never double count, and a partially available crate is reported honestly as full crates plus loose pieces. Money is handled with decimal arithmetic and prices are read from the database at the moment of sale, so a tampered request cannot change what a customer is charged. Each branch runs its own atomic sequence for invoice, transfer, and drawer numbers, so identifiers stay unique and gap free without a locking service.",
+  "architecture": "A Next.js App Router frontend renders server components for data heavy screens and client workspaces for the interactive ones. Those screens call route handlers, which do nothing but validate input and delegate, so all business logic lives in service modules under src/modules. Services check the caller's permissions and branch scope on every call, then run writes inside a single Prisma transaction against PostgreSQL, so a sale cannot record an invoice without also decrementing stock and writing its audit entry. zod validates every payload at the boundary, decimal.js keeps all money exact, and idempotency keys make a retried checkout return the original invoice rather than charging twice. Sessions are HMAC signed cookies compared in constant time, with bcrypt password hashing and a permissions table queried fresh on each request rather than trusted from a token.",
+  "decisions": [
+    "Resolve prices, stock, permissions, and branch scope on the server for every request, so a modified browser cannot change what is charged or which rows it can read.",
+    "Hold all inventory in base pieces and derive crate quantities through a per product conversion ratio, so mixed unit sales reconcile to one number.",
+    "Run every multi table write in a single transaction, so an invoice, its stock movements, and its audit entry either all land or none do.",
+    "Treat the audit log as a first class table written inside those transactions, rather than as logging added later, because an unbalanced drawer is only explainable if the trail is trustworthy.",
+    "Keep business rules in framework free service modules that take plain objects and return plain objects, so the whole domain can be exercised against a real database without a browser."
+  ],
+  "features": [
+    "Point of sale that sells by crate or by piece from the same cart, with server resolved pricing and a piece price derived from the crate price when no explicit one exists",
+    "Idempotent checkout keyed per request, so a double click or a network retry returns the original invoice instead of creating a second sale",
+    "Per branch atomic sequences for invoice numbers, transfer references, and drawer session numbers",
+    "Goods receiving that captures supplier and delivery reference and posts an immutable movement per line",
+    "Damage and write off logging with a mandatory reason, deducted from available stock and attributed to the employee who logged it",
+    "A movement ledger that separates opening stock, purchases, sales, transfers in and out, damage, expiry, and adjustments per branch and product",
+    "Reorder levels per product per branch, with low stock and healthy stock filters and a low stock count on the dashboard",
+    "Inter branch transfers that decrement the source and increment the destination in one transaction and log movement on both sides",
+    "Cash drawer sessions opened against a declared opening float, with only one open session allowed per cashier",
+    "Authorized drawer payouts for petty cash, safe drops, logistics, supplies, and owner withdrawals, blocked when they exceed the physical cash in the drawer",
+    "Server computed expected cash and expected transfers at close, presented as two separate variances so a banking shortfall is never confused with a cash shortfall",
+    "Cash handover from one cashier to the next with pending and received states recorded against the reconciliation",
+    "Customer accounts with credit limits, due dates, outstanding balance, and recorded repayments that clear debt against the ledger",
+    "Attendance clock in and clock out evaluated against each branch opening time, closing time, and grace period in Nigerian business time, producing present, late, incomplete, or early leave statuses",
+    "Correction requests for attendance that preserve the original time and require a manager to approve or reject before the status is recomputed",
+    "Five staff roles across 36 granular permissions, with both the navigation and the endpoints filtered per role, and owners granted every branch",
+    "Branch scoping so a user only reads and writes inside branches they are actively assigned to, enforced in the service layer",
+    "Price change history capturing the old price, the new price, who changed it, and why, whenever a manager or owner adjusts a branch price",
+    "Settings for branches, employees, roles, transfers between branches, product catalog, per branch bulk and piece pricing, and eleven units of measurement from crates to kegs",
+    "Printable invoices in A4 and thermal layouts carrying the company registration number, tax id, bank remittance details, and payment terms",
+    "A forensic audit log storing actor, action, entity, branch, reason, and before and after values, written at 29 separate points across the domain",
+    "A daily dashboard showing revenue, cash in till, low stock alerts, attendance, and the most recent activity needing attention",
+    "An eight phase integration suite that exercises sales, receiving, transfers, damage, attendance, credit, and the audit trail against a real database"
+  ],
+  "technologies": [
+    "Next.js 14",
+    "React 18",
+    "TypeScript",
+    "PostgreSQL",
+    "Prisma",
+    "Tailwind CSS",
+    "Zod",
+    "decimal.js",
+    "bcryptjs",
+    "lucide-react"
+  ],
+  "images": [
+    {
+      "src": "/uploads/projects/franklucy-operations-platform/54e79808309a-11b654.webp",
+      "alt": "Home (today)",
+      "width": 1303,
+      "height": 650,
+      "blurDataUrl": "data:image/webp;base64,UklGRjoCAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggTAAAANABAJ0BKhAACAADgFolAE6AxZukSvQAAP7xrpwrVJYVSj5uPpj7Zbucgr8WfVeWQ7+8YK+TiEtzcNRAnBE84GmHZl2ts4orc0UomgA="
+    },
+    {
+      "src": "/uploads/projects/franklucy-operations-platform/0e9d01fe8eec-ca737d.webp",
+      "alt": "point of sale",
+      "width": 1303,
+      "height": 650,
+      "blurDataUrl": "data:image/webp;base64,UklGRjYCAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggSAAAABACAJ0BKhAACAADgFolAE6AxYzkVK27ZdAA/vNZ6k+UUsVFEokDq+cEBFTpT5DnddBdwzHuXUKtx9Vkl5wDOrHC23DfFwAAAA=="
+    },
+    {
+      "src": "/uploads/projects/franklucy-operations-platform/777302414179-f71952.webp",
+      "alt": "inventory ledger",
+      "width": 1297,
+      "height": 650,
+      "blurDataUrl": "data:image/webp;base64,UklGRioCAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggPAAAADACAJ0BKhAACAADgFolAE6AxQDf37qXaTwAAP710pRccV+g+1db/Jiy/nvQVJLm2fHx3PskT9ZtZYAAAA=="
+    },
+    {
+      "src": "/uploads/projects/franklucy-operations-platform/eda1cd3e5e83-b30c6d.webp",
+      "alt": "invoice (88mm view",
+      "width": 759,
+      "height": 586,
+      "blurDataUrl": "data:image/webp;base64,UklGRlACAABXRUJQVlA4WAoAAAAgAAAADwAACwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggYgAAAHACAJ0BKhAADAADgFoljAJ0BpjOaDyjld7oFBgA/u+uc0ZdW1hKGfOb00j4mN0uOuI76/nz8tr0/6JPhRiIU0+ImazA3If76K2LkE2ye+WS4BvSH1jF3HrB0h/dvNhnwoAA"
+    },
+    {
+      "src": "/uploads/projects/franklucy-operations-platform/3c6c36fdff9d-274c9a.webp",
+      "alt": "customer account",
+      "width": 1297,
+      "height": 650,
+      "blurDataUrl": "data:image/webp;base64,UklGRjACAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggQgAAANABAJ0BKhAACAADgFolAE6AHsEZtDYAAP71hAwUM2GHOg5MgN6zCzFMTtyWM3oOSSV67sq0P9dyPH4vmTvRpLAAAA=="
+    },
+    {
+      "src": "/uploads/projects/franklucy-operations-platform/da4c289af959-21350b.webp",
+      "alt": "stock transfer",
+      "width": 1297,
+      "height": 650,
+      "blurDataUrl": "data:image/webp;base64,UklGRiICAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggNAAAALABAJ0BKhAACAADgFolAE6AHqd++AAA/vXSnyVLWQGcHkAKmkXFvzMIrtcfwRZN2G+LgAA="
+    },
+    {
+      "src": "/uploads/projects/franklucy-operations-platform/10faf525acb0-a02830.webp",
+      "alt": "settings",
+      "width": 1297,
+      "height": 650,
+      "blurDataUrl": "data:image/webp;base64,UklGRjYCAABXRUJQVlA4WAoAAAAgAAAADwAABwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggSAAAAPABAJ0BKhAACAADgFolAE6AIelfluxNAAD+9t4euAzrbyoYGAVU3sQkHvl12M4xlKHKqsrht2212OdaIQFE2greyd6PYcaAAA=="
+    }
+  ],
+  "status": "completed",
+  "featured": true,
+  "githubUrl": "https://github.com/saleke/franklucy",
+  "liveUrl": "",
+  "eyebrow": "PROJECT / 05",
+  "order": 5
+}
