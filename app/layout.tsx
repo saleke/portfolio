@@ -35,16 +35,25 @@ export async function generateMetadata(): Promise<Metadata> {
       description: site.seoDescription,
     },
     icons: { icon: site.profileImage },
-    verification: {
-      google: "google-site-verification=bbnoU8kPPVpSabD3U3ubDlgmIsUUcX27GDoo_0TITUg", 
-    },
   };
 }
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      {/* 1. Add this head block right here */}
+      <head>
+        <meta name="google-site-verification" content="google-site-verification=bbnoU8kPPVpSabD3U3ubDlgmIsUUcX27GDoo_0TITUg" />
+      </head>
+      
+      <body>
+        {children}
+      </body>
     </html>
   );
 }
+
