@@ -35,6 +35,9 @@ export async function generateMetadata(): Promise<Metadata> {
       description: site.seoDescription,
     },
     icons: { icon: site.profileImage },
+    verification: {
+      google: "google-site-verification=bbnoU8kPPVpSabD3U3ubDlgmIsUUcX27GDoo_0TITUg", 
+    },
   };
 }
 
@@ -45,9 +48,3 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   );
 }
-
-export const metadata: Metadata = {
-  verification: {
-    google: 'google-site-verification=bbnoU8kPPVpSabD3U3ubDlgmIsUUcX27GDoo_0TITUg',
-  },
-};
