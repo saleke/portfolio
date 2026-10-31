@@ -23,7 +23,7 @@ export async function Projects() {
           const hasCover = Boolean(project.images[0]);
 
           return (
-          <article className="project-card" key={project.slug}>
+          <article className={`project-card ${project.featured ? "is-featured" : ""}`} key={project.slug}>
             <div className="project-card-top">
               <span className="project-eyebrow">{project.eyebrow}</span>
               {project.status ? (
@@ -34,7 +34,7 @@ export async function Projects() {
             </div>
 
             {hasCover ? (
-              <div className="project-card-cover">
+              <Link className="project-card-cover" href={`/projects/${project.slug}`} aria-label={`View ${project.title} case study`}>
                 <Image
                   src={project.images[0].src}
                   alt={project.images[0].alt || `${project.title} screenshot`}
@@ -45,10 +45,10 @@ export async function Projects() {
                   placeholder={project.images[0].blurDataUrl ? "blur" : "empty"}
                   blurDataURL={project.images[0].blurDataUrl}
                 />
-              </div>
+              </Link>
             ) : null}
 
-            <h3>{project.title}</h3>
+            <h3><Link href={`/projects/${project.slug}`}>{project.title}</Link></h3>
             <p className="project-description">{project.description}</p>
 
             {/*
@@ -69,16 +69,28 @@ export async function Projects() {
             ) : null}
 
             <div className="tag-list">
-              {project.technologies.map((technology) => (
+              {project.technologies.slice(0, 5).map((technology) => (
                 <span className="tag" key={technology}>
                   {technology}
                 </span>
               ))}
+              {project.technologies.length > 5 ? (
+                <details className="tech-more">
+                  <summary className="tag tag-more">
+                    +{project.technologies.length - 5} more
+                  </summary>
+                  <div className="tech-extra">
+                    {project.technologies.slice(5).map((technology) => (
+                      <span className="tag" key={technology}>{technology}</span>
+                    ))}
+                  </div>
+                </details>
+              ) : null}
             </div>
 
             <div className="card-actions">
               <Link href={`/projects/${project.slug}`}>
-                View case study <span aria-hidden="true">↗</span>
+                View case study <span aria-hidden="true">→</span>
               </Link>
 
               {project.githubUrl ? (

@@ -5,7 +5,7 @@ export async function CurrentlyLearning() {
   const [site, focus] = await Promise.all([getSiteCopy(), getFocusAreas()]);
 
   return (
-    <section className="section learning-section container" aria-labelledby="learning-title">
+    <section className="section learning-section container" id="learning" aria-labelledby="learning-title">
       <SectionHeading
         id="learning-title"
         index={site.sections.learning.index}

@@ -16,6 +16,7 @@ export async function Footer() {
         {/* Shown only when configured, so the footer can never display a bare
             `mailto:` with no address. */}
         {contact.email ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : null}
+        <a href="#top">Back to top ↑</a>
       </div>
     </footer>
   );

@@ -89,7 +89,7 @@ export default async function Home() {
         }}
       />
       <Navbar name={site.name} />
-      <main>
+      <main id="main-content">
         <Hero />
         <About />
         <Projects />

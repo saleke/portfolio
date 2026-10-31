@@ -14,6 +14,10 @@ export async function Hero() {
   // The name is the page heading. The role and positioning are intentionally a
   // separate block so the identity does not visually merge into the descriptor.
   const spokenRole = [title, ...hero.positioning].join(" | ");
+  const positioningText = hero.positioning.join(" ").toLowerCase();
+  const supplementaryStack = hero.stack.filter(
+    (item) => !positioningText.includes(item.toLowerCase()),
+  );
 
   return (
     <section className="hero container" aria-labelledby="hero-title">
@@ -52,15 +56,17 @@ export async function Hero() {
 
         <p className="hero-lede">{hero.lede}</p>
 
-        <div className="stack-line" aria-label="Primary technology stack">
-          {hero.stack.map((item) => (
-            <span key={item}>{item}</span>
-          ))}
-        </div>
+        {supplementaryStack.length > 0 ? (
+          <div className="stack-line" aria-label="Additional technology stack">
+            {supplementaryStack.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
+        ) : null}
 
         <div className="hero-actions">
           <Link className="button button-primary" href="#projects">
-            {hero.primaryAction} <span aria-hidden="true">↗</span>
+            {hero.primaryAction} <span aria-hidden="true">↓</span>
           </Link>
 
           {/* Hidden when no GitHub URL is configured, rather than linking to "" */}

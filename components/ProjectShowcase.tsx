@@ -38,6 +38,7 @@ export function ProjectShowcase({
   /** The thumbnail that opened the lightbox, so focus can be given back to it. */
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const lightboxRef = useRef<HTMLDivElement>(null);
 
   const close = useCallback(() => setOpenIndex(null), []);
 
@@ -70,6 +71,19 @@ export function ProjectShowcase({
       } else if (event.key === "ArrowLeft") {
         event.preventDefault();
         step(-1);
+      } else if (event.key === "Tab") {
+        const controls = Array.from(
+          lightboxRef.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? [],
+        );
+        const first = controls[0];
+        const last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
       }
     }
 
@@ -168,6 +182,7 @@ export function ProjectShowcase({
 
       {active ? (
         <div
+          ref={lightboxRef}
           className="showcase-lightbox"
           role="dialog"
           aria-modal="true"

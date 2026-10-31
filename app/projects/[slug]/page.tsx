@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { getProject, getProjectSlugs } from "@/lib/projects";
+import { getProject, getProjects, getProjectSlugs } from "@/lib/projects";
 import { getSiteCopy } from "@/lib/content";
 import { Prose } from "@/components/Prose";
 import { ProjectShowcase } from "@/components/ProjectShowcase";
@@ -62,15 +62,26 @@ export async function generateMetadata({
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  // Both reads are independent and cached, so they resolve in one pass.
-  const [project, site] = await Promise.all([getProject(slug), getSiteCopy()]);
+  const [projects, site] = await Promise.all([getProjects(), getSiteCopy()]);
+  const project = projects.find((entry) => entry.slug === slug);
 
   if (!project) notFound();
+
+  const projectIndex = projects.findIndex((entry) => entry.slug === slug);
+  const nextProject = projects.length > 1 ? projects[(projectIndex + 1) % projects.length] : null;
+  const contents = [
+    ["overview", "Overview"],
+    ["problem", "Problem"],
+    ["solution", "Solution"],
+    ["architecture", "Architecture"],
+    ...(project.decisions.length > 0 ? [["decisions", "Technical decisions"]] : []),
+    ...(project.features.length > 0 ? [["features", "Features"]] : []),
+  ];
 
   return (
     <>
       <Navbar name={site.name} />
-      <main className="project-detail container">
+      <main className="project-detail container" id="main-content">
         <Link className="back-link" href="/#projects">
           ← Back to portfolio
         </Link>
@@ -80,11 +91,21 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <h1>{project.title}</h1>
           <p>{project.description}</p>
           <div className="tag-list">
-            {project.technologies.map((technology) => (
+            {project.technologies.slice(0, 8).map((technology) => (
               <span className="tag" key={technology}>
                 {technology}
               </span>
             ))}
+            {project.technologies.length > 8 ? (
+              <details className="tech-more">
+                <summary className="tag tag-more">+{project.technologies.length - 8} more</summary>
+                <div className="tech-extra">
+                  {project.technologies.slice(8).map((technology) => (
+                    <span className="tag" key={technology}>{technology}</span>
+                  ))}
+                </div>
+              </details>
+            ) : null}
           </div>
         </header>
 
@@ -106,28 +127,28 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               the full 720px, which is the other half of why prose this long felt
               like something to skim past.
             */}
-            <section className="detail-card">
+            <section className="detail-card" id="overview">
               <p className="detail-label">01 / OVERVIEW</p>
               <Prose text={project.overview} className="detail-prose" />
             </section>
 
-            <section className="detail-card">
+            <section className="detail-card" id="problem">
               <p className="detail-label">02 / PROBLEM</p>
               <Prose text={project.problem} className="detail-prose" />
             </section>
 
-            <section className="detail-card">
+            <section className="detail-card" id="solution">
               <p className="detail-label">03 / SOLUTION</p>
               <Prose text={project.solution} className="detail-prose" />
             </section>
 
-            <section className="detail-card">
+            <section className="detail-card" id="architecture">
               <p className="detail-label">04 / ARCHITECTURE</p>
               <Prose text={project.architecture} className="detail-prose" />
             </section>
 
             {project.decisions.length > 0 ? (
-              <section className="detail-card">
+              <section className="detail-card" id="decisions">
                 <p className="detail-label">05 / TECHNICAL DECISIONS</p>
                 <ul>
                   {project.decisions.map((decision) => (
@@ -138,7 +159,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             ) : null}
 
             {project.features.length > 0 ? (
-              <section className="detail-card">
+              <section className="detail-card" id="features">
                 <p className="detail-label">06 / FEATURES</p>
                 <ul>
                   {project.features.map((feature) => (
@@ -150,6 +171,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </article>
 
           <aside className="detail-aside">
+            <nav className="detail-toc" aria-label="Case study sections">
+              <p>ON THIS PAGE</p>
+              {contents.map(([id, label]) => (
+                <a href={`#${id}`} key={id}>{label}</a>
+              ))}
+            </nav>
+
             <div className="aside-rule" />
             <p>STATUS</p>
             <strong>{project.status === "in-progress" ? "In progress" : "Completed"}</strong>
@@ -174,6 +202,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             </div>
           </aside>
         </div>
+
+        {nextProject ? (
+          <nav className="next-project" aria-label="Next project">
+            <span>Next project</span>
+            <Link href={`/projects/${nextProject.slug}`}>
+              {nextProject.title} <span aria-hidden="true">→</span>
+            </Link>
+          </nav>
+        ) : null}
       </main>
       <Footer />
     </>

@@ -31,7 +31,7 @@ export async function Contact() {
             >
               <span>{link.label}</span>
               <strong>{link.display}</strong>
-              <span aria-hidden="true">↗</span>
+              <span aria-hidden="true">{link.external ? "↗" : "→"}</span>
             </a>
           ))
         ) : (
