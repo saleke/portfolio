@@ -90,7 +90,7 @@ export default function SettingsPage() {
       <header className="admin-page-head">
         <div>
           <p className="admin-eyebrow">SYSTEM</p>
-          <h1>Settings</h1>
+          <h1>Configuration</h1>
           <p className="admin-subtle">
             Configuration is read from environment variables and cannot be changed here. This page
             shows which are set.
@@ -105,7 +105,7 @@ export default function SettingsPage() {
             <h2>Publishing is incomplete</h2>
             <p>
               {missing.length} variable{missing.length === 1 ? " is" : "s are"} not set. Until they
-              are, forms will load but saving will fail. Set them in your host&amp;rsquo;s environment and
+              are, forms will load but saving will fail. Set them in your host&rsquo;s environment and
               redeploy.
             </p>
             <ul>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getProjects } from "@/lib/projects";
 import { isGitConfigured } from "@/lib/github";
-import { MoveProjectButton, DeleteProjectButton } from "@/app/admin/(dashboard)/ProjectListControls";
+import { DeleteProjectButton, ProjectOrderEditor } from "@/app/admin/(dashboard)/ProjectListControls";
 
 /**
  * The project list.
@@ -16,7 +16,7 @@ export default async function ProjectsPage({
 }: {
   searchParams: Promise<{ deleted?: string; published?: string }>;
 }) {
-  const [{ deleted }, projects] = await Promise.all([searchParams, getProjects()]);
+  const [{ deleted, published }, projects] = await Promise.all([searchParams, getProjects()]);
 
   return (
     <div className="admin-page">
@@ -27,7 +27,7 @@ export default async function ProjectsPage({
           <p className="admin-subtle">
             {projects.length === 0
               ? "Nothing published yet."
-              : `${projects.length} published, newest first.`}
+              : `${projects.length} published, ordered as shown on the site.`}
           </p>
         </div>
         <div className="admin-head-actions">
@@ -44,10 +44,16 @@ export default async function ProjectsPage({
         </p>
       ) : null}
 
+      {published ? (
+        <p className="admin-callout is-success" role="status">
+          Project committed successfully. It will appear here when the new deployment is live.
+        </p>
+      ) : null}
+
       {!isGitConfigured() ? (
         <p className="admin-callout is-warning" role="status">
           Publishing is not configured, so changes cannot be saved. Set the GitHub environment
-          variables on the <Link href="/admin/settings">settings page</Link>.
+          variables on the <Link href="/admin/settings">configuration page</Link>.
         </p>
       ) : null}
 
@@ -63,27 +69,14 @@ export default async function ProjectsPage({
           </Link>
         </div>
       ) : (
-        <ul className="admin-projectlist">
-          {projects.map((project, index) => {
+        <>
+          <ProjectOrderEditor projects={projects.map(({ slug, title }) => ({ slug, title }))} />
+          <ul className="admin-projectlist">
+          {projects.map((project) => {
             const [cover] = project.images;
 
             return (
               <li className="admin-projectrow" key={project.slug}>
-                <div className="admin-projectrow-order">
-                  <MoveProjectButton
-                    slug={project.slug}
-                    title={project.title}
-                    direction="up"
-                    disabled={index === 0}
-                  />
-                  <MoveProjectButton
-                    slug={project.slug}
-                    title={project.title}
-                    direction="down"
-                    disabled={index === projects.length - 1}
-                  />
-                </div>
-
                 <div className="admin-projectrow-thumb">
                   {cover ? (
                     <Image
@@ -142,7 +135,8 @@ export default async function ProjectsPage({
               </li>
             );
           })}
-        </ul>
+          </ul>
+        </>
       )}
     </div>
   );

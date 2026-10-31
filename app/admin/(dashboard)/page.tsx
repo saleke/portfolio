@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getProjects } from "@/lib/projects";
-import { getTechnologies, getFocusAreas } from "@/lib/content";
+import { getTechnologies } from "@/lib/content";
 import { listRecentCommits, isGitConfigured, type RecentCommit } from "@/lib/github";
 import { isAuthConfigured } from "@/lib/auth";
 import { contactVariables } from "@/data/profile";
@@ -130,10 +130,9 @@ function Stat({
 }
 
 export default async function OverviewPage() {
-  const [projects, technologies, focus] = await Promise.all([
+  const [projects, technologies] = await Promise.all([
     getProjects(),
     getTechnologies(),
-    getFocusAreas(),
   ]);
 
   // Failures are swallowed on purpose: an activity feed is a convenience, and
@@ -150,7 +149,6 @@ export default async function OverviewPage() {
 
   const checks = buildChecks();
   const blockers = checks.filter((check) => !check.ok && check.critical);
-  const imageCount = projects.reduce((total, project) => total + project.images.length, 0);
   const technologyCount = technologies.groups.reduce(
     (total, group) => total + group.items.length,
     0,
@@ -161,7 +159,7 @@ export default async function OverviewPage() {
       <header className="admin-page-head">
         <div>
           <p className="admin-eyebrow">OVERVIEW</p>
-          <h1>Control plane</h1>
+          <h1>Dashboard</h1>
           <p className="admin-subtle">
             Everything on the public site is edited here and published to the repository.
           </p>
@@ -204,10 +202,10 @@ export default async function OverviewPage() {
             icon="layers"
           />
           <Stat
-            label="Images"
-            value={imageCount}
-            hint="stored in the repository"
-            icon="image"
+            label="Completed projects"
+            value={projects.filter((project) => project.status === "completed").length}
+            hint={`${projects.filter((project) => project.status === "in-progress").length} in progress`}
+            icon="check"
           />
           <Stat
             label="Technologies"
@@ -216,10 +214,10 @@ export default async function OverviewPage() {
             icon="chip"
           />
           <Stat
-            label="Focus areas"
-            value={focus.items.length}
-            hint={`${focus.items.filter((item) => item.accent).length} highlighted`}
-            icon="target"
+            label="Configuration"
+            value={blockers.length === 0 ? "Ready" : blockers.length}
+            hint={blockers.length === 0 ? "publishing enabled" : "blocking issues"}
+            icon="sliders"
           />
         </div>
       </section>
@@ -234,7 +232,7 @@ export default async function OverviewPage() {
               <Link href="/admin/content">
                 <Icon name="document" />
                 <span>
-                  <strong>Site copy</strong>
+                  <strong>Homepage</strong>
                   <small>Identity, hero, about and section headings</small>
                 </span>
               </Link>
@@ -243,7 +241,7 @@ export default async function OverviewPage() {
               <Link href="/admin/technology">
                 <Icon name="chip" />
                 <span>
-                  <strong>Technology</strong>
+                  <strong>Skills and tools</strong>
                   <small>{technologyCount} tools across {technologies.groups.length} groups</small>
                 </span>
               </Link>
@@ -252,7 +250,7 @@ export default async function OverviewPage() {
               <Link href="/admin/direction">
                 <Icon name="target" />
                 <span>
-                  <strong>Direction</strong>
+                  <strong>Current direction</strong>
                   <small>Focus areas and technical interests</small>
                 </span>
               </Link>

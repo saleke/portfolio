@@ -32,10 +32,7 @@ export function EditorForm({
   // form-level and go in the banner. Showing both everywhere would repeat every
   // message twice.
   const fieldErrors = state.fieldErrors ?? {};
-  const formError =
-    state.status === "error" && state.message !== "Some fields need attention."
-      ? state.message
-      : undefined;
+  const formError = state.status === "error" ? state.message : undefined;
 
   return (
     <form action={formAction} className="admin-form">

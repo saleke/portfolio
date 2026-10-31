@@ -136,7 +136,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
 
 /** Human labels for the site-copy tabs. */
 export const COPY_TABS = [
-  { key: "identity", label: "Identity" },
+  { key: "identity", label: "Profile and SEO" },
   { key: "hero", label: "Hero" },
   { key: "about", label: "About" },
   { key: "terminal", label: "Terminal card" },

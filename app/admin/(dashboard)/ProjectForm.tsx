@@ -57,7 +57,7 @@ export function ProjectForm({ project }: { project?: Project }) {
     one, and keyed by slug rather than by title so renaming a project does not
     orphan the draft that belongs to it.
   */
-  const { formRef, save, flush, clear } = useDraft(
+  const { formRef, save, flush, clear, draftState } = useDraft(
     isEdit ? `project:${project!.slug}` : "project:new",
     state.status,
   );
@@ -122,7 +122,23 @@ export function ProjectForm({ project }: { project?: Project }) {
 
       <FormStatus status={state.status} message={state.message} />
 
-      <fieldset className="admin-section">
+      <div className="admin-form-toolbar">
+        <nav className="admin-form-nav" aria-label="Project form sections">
+          <a href="#project-basics">Basics</a>
+          <a href="#project-story">Case study</a>
+          <a href="#project-details">Details</a>
+          <a href="#project-images">Images</a>
+        </nav>
+        <p className="admin-draft-state" role="status">
+          {draftState === "restored"
+            ? "Text draft restored"
+            : draftState === "saved"
+              ? "Text draft saved locally"
+              : "Changes are saved locally as you type"}
+        </p>
+      </div>
+
+      <fieldset className="admin-section" id="project-basics">
         <legend>Basics</legend>
 
         <Field
@@ -139,6 +155,7 @@ export function ProjectForm({ project }: { project?: Project }) {
             required
             maxLength={LIMITS.title}
             aria-invalid={Boolean(errors.title)}
+            aria-describedby="title-note"
           />
         </Field>
 
@@ -155,6 +172,7 @@ export function ProjectForm({ project }: { project?: Project }) {
               className="admin-input"
               maxLength={80}
               placeholder="auto-generated"
+              aria-describedby="slug-note"
             />
           </Field>
         ) : null}
@@ -174,6 +192,7 @@ export function ProjectForm({ project }: { project?: Project }) {
             rows={2}
             maxLength={LIMITS.description}
             aria-invalid={Boolean(errors.description)}
+            aria-describedby="description-note"
           />
         </Field>
 
@@ -190,6 +209,7 @@ export function ProjectForm({ project }: { project?: Project }) {
             defaultValue={project?.context}
             rows={2}
             maxLength={LIMITS.context}
+            aria-describedby="context-note"
           />
         </Field>
 
@@ -200,6 +220,7 @@ export function ProjectForm({ project }: { project?: Project }) {
               name="status"
               className="admin-input admin-select"
               defaultValue={project?.status ?? "in-progress"}
+              aria-describedby="status-note"
             >
               <option value="in-progress">In progress</option>
               <option value="completed">Completed</option>
@@ -219,6 +240,7 @@ export function ProjectForm({ project }: { project?: Project }) {
               defaultValue={project?.eyebrow}
               maxLength={LIMITS.eyebrow}
               placeholder="PROJECT"
+              aria-describedby="eyebrow-note"
             />
           </Field>
         </div>
@@ -231,7 +253,7 @@ export function ProjectForm({ project }: { project?: Project }) {
         />
       </fieldset>
 
-      <fieldset className="admin-section">
+      <fieldset className="admin-section" id="project-story">
         <legend>Case study</legend>
         <p className="admin-note">
           The point of a project page is to show how you think, so these carry the most weight.
@@ -248,6 +270,7 @@ export function ProjectForm({ project }: { project?: Project }) {
               rows={4}
               maxLength={LIMITS.narrative}
               aria-invalid={Boolean(errors[name])}
+              aria-describedby={`${name}-note`}
             />
           </Field>
         ))}
@@ -279,7 +302,7 @@ export function ProjectForm({ project }: { project?: Project }) {
         />
       </fieldset>
 
-      <fieldset className="admin-section">
+      <fieldset className="admin-section" id="project-details">
         <legend>Details</legend>
 
         <Field
@@ -294,6 +317,7 @@ export function ProjectForm({ project }: { project?: Project }) {
             className="admin-input"
             defaultValue={project?.technologies.join(", ")}
             aria-invalid={Boolean(errors.technologies)}
+            aria-describedby="technologies-note"
           />
         </Field>
 
@@ -307,6 +331,7 @@ export function ProjectForm({ project }: { project?: Project }) {
               defaultValue={project?.githubUrl}
               maxLength={LIMITS.url}
               placeholder="https://github.com/..."
+              aria-describedby="githubUrl-note"
             />
           </Field>
 
@@ -324,12 +349,13 @@ export function ProjectForm({ project }: { project?: Project }) {
               defaultValue={project?.liveUrl}
               maxLength={LIMITS.url}
               placeholder="https://..."
+              aria-describedby="liveUrl-note"
             />
           </Field>
         </div>
       </fieldset>
 
-      <fieldset className="admin-section">
+      <fieldset className="admin-section" id="project-images">
         <legend>Images</legend>
         <ImageUploader existing={project?.images ?? []} status={state.status} />
       </fieldset>

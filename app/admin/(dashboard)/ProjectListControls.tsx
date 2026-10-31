@@ -1,50 +1,84 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { deleteProject, reorderProjects } from "@/app/admin/actions";
-import { IDLE_STATE } from "@/app/admin/state";
+import { deleteProject, saveProjectOrder } from "@/app/admin/actions";
+import { IDLE_STATE, type ActionState } from "@/app/admin/state";
 import { FormStatus } from "@/components/admin/inputs";
 
-/**
- * Moves a project up or down in the ordering.
- *
- * Ordering is stored as an explicit `order` weight rather than derived from file
- * names, so changing it is a content edit. The action swaps positions and only
- * rewrites the projects whose weight actually changes, which is usually two
- * files rather than the whole list.
- */
-export function MoveProjectButton({
-  slug,
-  title,
-  direction,
-  disabled,
+export function ProjectOrderEditor({
+  projects,
 }: {
-  slug: string;
-  title: string;
-  direction: "up" | "down";
-  disabled: boolean;
+  projects: { slug: string; title: string }[];
 }) {
-  const [state, formAction, pending] = useActionState(reorderProjects, IDLE_STATE);
-  const isUp = direction === "up";
+  const [ordered, setOrdered] = useState(projects);
+  const initialOrder = JSON.stringify(projects.map((project) => project.slug));
+  const [savedOrder, setSavedOrder] = useState(initialOrder);
+  const currentOrder = JSON.stringify(ordered.map((project) => project.slug));
+  const orderAction = async (previous: ActionState, formData: FormData) => {
+    const result = await saveProjectOrder(previous, formData);
+    if (result.status === "success") setSavedOrder(String(formData.get("order") ?? ""));
+    return result;
+  };
+  const [state, formAction, pending] = useActionState(orderAction, IDLE_STATE);
+  const dirty = savedOrder !== currentOrder;
+
+  const move = (from: number, to: number) => {
+    if (to < 0 || to >= ordered.length) return;
+    setOrdered((current) => {
+      const next = [...current];
+      const [project] = next.splice(from, 1);
+      next.splice(to, 0, project);
+      return next;
+    });
+  };
 
   return (
-    <form action={formAction}>
-      <input type="hidden" name="slug" value={slug} />
-      <input type="hidden" name="direction" value={direction} />
-      <button
-        type="submit"
-        className="admin-button admin-button-quiet admin-button-icon"
-        disabled={disabled || pending}
-        // Names the project, not the slug: the slug is an implementation detail
-        // the owner chose by accident as often as not.
-        aria-label={`Move ${title} ${isUp ? "up" : "down"}`}
-        title={disabled ? (isUp ? "Already first" : "Already last") : isUp ? "Move up" : "Move down"}
-      >
-        {isUp ? "↑" : "↓"}
-      </button>
-      {/* Errors surface here rather than on the page, since this button has no
-          room for them and the common failure is simply "no movement left". */}
-      {state.status === "error" ? <span className="sr-only">{state.message}</span> : null}
+    <form action={formAction} className="admin-order-editor">
+      <div className="admin-order-head">
+        <div>
+          <h2>Homepage order</h2>
+          <p>Arrange every project, then save the final order in one commit.</p>
+        </div>
+        <button
+          type="submit"
+          className="admin-button admin-button-primary"
+          disabled={!dirty || pending}
+        >
+          {pending ? "Saving order…" : "Save order"}
+        </button>
+      </div>
+
+      <FormStatus status={state.status} message={state.message} />
+
+      <ol className="admin-order-list">
+        {ordered.map((project, index) => (
+          <li key={project.slug}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <strong>{project.title}</strong>
+            <div className="admin-row-actions">
+              <button
+                type="button"
+                className="admin-icon-button"
+                onClick={() => move(index, index - 1)}
+                disabled={index === 0}
+                aria-label={`Move ${project.title} earlier`}
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                className="admin-icon-button"
+                onClick={() => move(index, index + 1)}
+                disabled={index === ordered.length - 1}
+                aria-label={`Move ${project.title} later`}
+              >
+                ↓
+              </button>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <input type="hidden" name="order" value={currentOrder} />
     </form>
   );
 }
@@ -60,6 +94,7 @@ export function DeleteProjectButton({ slug, title }: { slug: string; title: stri
   const [state, formAction, pending] = useActionState(deleteProject, IDLE_STATE);
   const [value, setValue] = useState("");
   const dialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // The typed value is cleared when the dialog closes rather than in an effect
   // watching `open`: the two places that close it (cancel, Escape) both reset it
@@ -67,6 +102,7 @@ export function DeleteProjectButton({ slug, title }: { slug: string; title: stri
   const close = () => {
     setOpen(false);
     setValue("");
+    window.requestAnimationFrame(() => triggerRef.current?.focus());
   };
 
   useEffect(() => {
@@ -77,16 +113,38 @@ export function DeleteProjectButton({ slug, title }: { slug: string; title: stri
       if (event.key === "Escape") {
         setOpen(false);
         setValue("");
+        window.requestAnimationFrame(() => triggerRef.current?.focus());
+      } else if (event.key === "Tab") {
+        const elements = Array.from(
+          dialogRef.current?.querySelectorAll<HTMLElement>(
+            "input:not(:disabled), button:not(:disabled)",
+          ) ?? [],
+        );
+        const first = elements[0];
+        const last = elements.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
       }
     };
     document.addEventListener("keydown", onKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     dialogRef.current?.querySelector<HTMLInputElement>("input")?.focus();
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [open]);
 
   if (!open) {
     return (
       <button
+        ref={triggerRef}
         type="button"
         className="admin-button admin-button-danger"
         onClick={() => setOpen(true)}
@@ -99,12 +157,21 @@ export function DeleteProjectButton({ slug, title }: { slug: string; title: stri
   const matches = value.trim() === title;
 
   return (
-    <div className="admin-confirm" ref={dialogRef} role="dialog" aria-label={`Delete ${title}`}>
-      <p>
-        Delete <strong>{title}</strong>? Type the title to confirm.
-      </p>
+    <div className="admin-dialog-backdrop" onMouseDown={(event) => {
+      if (event.target === event.currentTarget && !pending) close();
+    }}>
+      <div
+        className="admin-confirm"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`delete-title-${slug}`}
+      >
+        <p id={`delete-title-${slug}`}>
+          Delete <strong>{title}</strong>? Type the title to confirm.
+        </p>
 
-      <form action={formAction} className="admin-form">
+        <form action={formAction} className="admin-form">
         <input type="hidden" name="slug" value={slug} />
         <input type="hidden" name="confirm" value={value} />
 
@@ -144,8 +211,8 @@ export function DeleteProjectButton({ slug, title }: { slug: string; title: stri
             Cancel
           </button>
         </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
-

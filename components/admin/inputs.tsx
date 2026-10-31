@@ -45,7 +45,11 @@ export function Field({
         message is always in the DOM rather than conditionally mounted, which
         keeps the announcement reliable across repeated submissions.
       */}
-      <p className={classNames("admin-field-note", error && "is-error")} id={`${htmlFor}-note`}>
+      <p
+        className={classNames("admin-field-note", error && "is-error")}
+        id={`${htmlFor}-note`}
+        aria-live={error ? "polite" : undefined}
+      >
         {error ?? hint ?? ""}
       </p>
     </div>
@@ -74,6 +78,7 @@ export function TextInput({
 }) {
   return (
     <input
+      id={name}
       type={type}
       name={name}
       defaultValue={defaultValue}
@@ -83,6 +88,7 @@ export function TextInput({
       readOnly={readOnly}
       onChange={onChange ? (event) => onChange(event.target.value) : undefined}
       className={classNames("admin-input", readOnly && "is-readonly")}
+      aria-describedby={`${name}-note`}
     />
   );
 }
@@ -105,6 +111,7 @@ export function TextArea({
 }) {
   return (
     <textarea
+      id={name}
       name={name}
       rows={rows}
       defaultValue={defaultValue}
@@ -112,6 +119,7 @@ export function TextArea({
       maxLength={maxLength}
       onChange={onChange ? (event) => onChange(event.target.value) : undefined}
       className="admin-input admin-textarea"
+      aria-describedby={`${name}-note`}
     />
   );
 }
@@ -562,7 +570,9 @@ export function TechnologyGroupsInput({
           state
             .map((group) => ({
               title: group.title.trim(),
-              items: parseItems(group.text, maxItems),
+              // Submit every item. The server must reject an over-limit group
+              // rather than silently dropping anything after the limit.
+              items: parseItems(group.text),
             }))
             // A row with neither a name nor an item is a stray click on "Add
             // group", not intent, so it is dropped rather than sent to fail

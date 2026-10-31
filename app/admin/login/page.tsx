@@ -35,7 +35,7 @@ export default async function LoginPage() {
             {initial}
           </span>
           <span className="login-brand-id">
-            <strong>Control plane</strong>
+            <strong>Portfolio admin</strong>
             <small>{name}</small>
           </span>
         </div>
@@ -50,8 +50,7 @@ export default async function LoginPage() {
           <p className="admin-eyebrow">ADMIN</p>
           <h1 className="login-title">Sign in</h1>
           <p className="login-lede">
-            Everything published here is written to the repository as a commit. The dashboard is
-            the only place that can change the public site.
+            Edit the portfolio, review its content, and publish changes to the live site.
           </p>
         </div>
 

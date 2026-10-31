@@ -11,7 +11,7 @@ export default async function DirectionPage() {
       <header className="admin-page-head">
         <div>
           <p className="admin-eyebrow">LIBRARY</p>
-          <h1>Direction</h1>
+          <h1>Current direction</h1>
           <p className="admin-subtle">
             {focus.items.length} areas, {accented} highlighted.{" "}
             <Link href="/#learning" target="_blank" className="admin-link">

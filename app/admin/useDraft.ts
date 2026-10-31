@@ -21,7 +21,7 @@
  * parts actually typed in, do persist.
  */
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /** Draft contents are flat strings, so they round-trip through JSON trivially. */
 type Draft = Record<string, string>;
@@ -127,6 +127,7 @@ function restore(form: HTMLFormElement, draft: Draft): void {
 export function useDraft(key: string, status: string, enabled = true) {
   const formRef = useRef<HTMLFormElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [draftState, setDraftState] = useState<"idle" | "restored" | "saved">("idle");
   // Guards the one real hazard here: writing the draft back over a restored one
   // before the restore has happened, which would replace the owner's saved work
   // with an empty form.
@@ -139,7 +140,10 @@ export function useDraft(key: string, status: string, enabled = true) {
     restoredRef.current = true;
     const stored = readDraft(key);
     const form = formRef.current;
-    if (stored && form) restore(form, stored);
+    if (stored && form) {
+      restore(form, stored);
+      setDraftState("restored");
+    }
   }, [key, enabled]);
 
   // Clear once the save has actually landed.
@@ -178,7 +182,10 @@ export function useDraft(key: string, status: string, enabled = true) {
     const draft = capture(form);
     if (timerRef.current) clearTimeout(timerRef.current);
     // Debounced because a paste into a textarea fires once per line.
-    timerRef.current = setTimeout(() => writeDraft(key, draft), 400);
+    timerRef.current = setTimeout(() => {
+      writeDraft(key, draft);
+      setDraftState("saved");
+    }, 400);
   }, [key]);
 
   /**
@@ -192,6 +199,7 @@ export function useDraft(key: string, status: string, enabled = true) {
     if (!form || !restoredRef.current) return;
     if (timerRef.current) clearTimeout(timerRef.current);
     writeDraft(key, capture(form));
+    setDraftState("saved");
   }, [key]);
 
   /**
@@ -206,7 +214,8 @@ export function useDraft(key: string, status: string, enabled = true) {
     if (timerRef.current) clearTimeout(timerRef.current);
     restoredRef.current = true;
     discardDraft(key);
+    setDraftState("idle");
   }, [key]);
 
-  return { formRef, save, flush, clear };
+  return { formRef, save, flush, clear, draftState };
 }

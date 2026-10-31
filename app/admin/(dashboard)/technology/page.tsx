@@ -11,7 +11,7 @@ export default async function TechnologyPage() {
       <header className="admin-page-head">
         <div>
           <p className="admin-eyebrow">LIBRARY</p>
-          <h1>Technology</h1>
+          <h1>Skills and tools</h1>
           <p className="admin-subtle">
             {itemCount} tools across {technologies.groups.length} groups.{" "}
             <Link href="/#stack" target="_blank" className="admin-link">

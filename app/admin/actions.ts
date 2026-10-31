@@ -401,7 +401,9 @@ export async function createProject(
   revalidatePath("/");
   revalidatePath("/admin/projects");
 
-  redirect(`/admin/projects/${slug}?published=1`);
+  // The running deployment does not contain the new file yet, so redirecting to
+  // its edit route would return a temporary 404 until Vercel finishes rebuilding.
+  redirect("/admin/projects?published=1");
 }
 
 /** Publishes changes to an existing project. */
@@ -462,26 +464,15 @@ export async function updateProject(
   try {
     const result = await collectNewImages(formData, slug, replaceTargets);
 
-    /*
-      Rebuilt from the stored order rather than concatenated, because that is
-      what makes a replace behave like a replace.
+    // Existing images arrive in the order shown in the editor. Respecting that
+    // submitted order makes cover selection and image reordering possible.
+    const images: ProjectImage[] = [...mergedKept];
 
-      Appending new images to the kept ones looks equivalent until one of them
-      is a replacement: the first image is the cover used for the social card,
-      so replacing it and appending it would silently change which screenshot
-      the project card shows. Walking the stored list and substituting in place
-      keeps every untouched image exactly where the owner left it.
-    */
-    const images: ProjectImage[] = [];
-    for (const image of existing.images) {
-      const replacement = result.replaces.get(image.src);
-      if (replacement) {
-        images.push(replacement);
-      } else if (keptSrcs.has(image.src)) {
-        const merged = mergedKept.find((entry) => entry.src === image.src);
-        if (merged) images.push(merged);
-      }
-      // Neither kept nor replaced: the owner removed it.
+    // A replacement retains the stored image's approximate position. This also
+    // keeps replacing the cover from silently selecting another image.
+    for (const [target, replacement] of result.replaces) {
+      const storedIndex = existing.images.findIndex((image) => image.src === target);
+      images.splice(Math.min(Math.max(storedIndex, 0), images.length), 0, replacement);
     }
 
     // Genuinely new images, in the order they were attached.
@@ -706,6 +697,82 @@ export async function reorderProjects(
   revalidatePath("/admin/projects");
 
   return { status: "success", message: `Order updated. ${PUBLISHED_NOTE}` };
+}
+
+/** Saves the complete project order in one commit. */
+export async function saveProjectOrder(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  if (!(await requireAuth())) {
+    return { status: "error", message: "Your session has expired. Sign in again." };
+  }
+
+  if (!isGitConfigured()) {
+    return { status: "error", message: NOT_CONFIGURED };
+  }
+
+  let requested: string[];
+  try {
+    const value: unknown = JSON.parse(String(formData.get("order") ?? "[]"));
+    if (!Array.isArray(value) || !value.every((slug): slug is string => typeof slug === "string" && isValidSlug(slug))) {
+      return { status: "error", message: "The submitted project order is invalid." };
+    }
+    requested = value;
+  } catch {
+    return { status: "error", message: "The submitted project order could not be read." };
+  }
+
+  if (new Set(requested).size !== requested.length) {
+    return { status: "error", message: "A project appears more than once in the submitted order." };
+  }
+
+  const paths = await listFilesUnder(`${CONTENT_DIR}/`);
+  const stored = await fetchJsonFiles<unknown>(paths);
+  const projects: Project[] = [];
+
+  for (const [path, raw] of stored) {
+    if (raw === null) continue;
+    const parsed = projectSchema.safeParse(raw);
+    if (!parsed.success) {
+      return {
+        status: "error",
+        message: `The stored content for ${path} is invalid, so the order was not changed.`,
+      };
+    }
+    projects.push({ ...parsed.data, slug: path.slice(CONTENT_DIR.length + 1, -".json".length) });
+  }
+
+  const storedSlugs = new Set(projects.map((project) => project.slug));
+  if (requested.length !== projects.length || requested.some((slug) => !storedSlugs.has(slug))) {
+    return {
+      status: "error",
+      message: "The project list changed since this page loaded. Refresh and reorder it again.",
+    };
+  }
+
+  const positions = new Map(requested.map((slug, index) => [slug, index + 1]));
+  const files: GitFile[] = projects
+    .filter((project) => project.order !== positions.get(project.slug))
+    .map((project) => ({
+      path: contentPath(project.slug),
+      content: serialiseDocument({ ...stripSlug(project), order: positions.get(project.slug) }),
+    }));
+
+  if (files.length === 0) {
+    return { status: "success", message: "The projects are already in that order." };
+  }
+
+  try {
+    await commitFiles(files, "chore: reorder projects");
+  } catch (error) {
+    if (error instanceof GitHubError) return { status: "error", message: error.message };
+    throw error;
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/projects");
+  return { status: "success", message: `Order saved. ${PUBLISHED_NOTE}` };
 }
 
 /**

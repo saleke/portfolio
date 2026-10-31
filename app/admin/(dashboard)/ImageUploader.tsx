@@ -29,6 +29,14 @@ const WEBP_QUALITY = 0.82;
 const BLUR_EDGE = 16;
 const MAX_IMAGES = 8;
 
+function moveItem<T>(items: T[], from: number, to: number): T[] {
+  if (to < 0 || to >= items.length) return items;
+  const next = [...items];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
 type Attachment = {
   /** Stable React key and filename stem. Not sent to the server. */
   key: string;
@@ -268,6 +276,18 @@ export function ImageUploader({
     setKept((current) => current.filter((item) => item.src !== src));
   }
 
+  function moveExisting(from: number, to: number) {
+    setKept((current) => moveItem(current, from, to));
+  }
+
+  function moveAttachment(from: number, to: number) {
+    setAttachments((current) => {
+      const next = moveItem(current, from, to);
+      syncInput(next);
+      return next;
+    });
+  }
+
   // Release any preview URLs still held when the component goes away.
   useEffect(() => {
     const live = attachments;
@@ -375,13 +395,16 @@ export function ImageUploader({
         <ul className="admin-uploader-grid">
           {kept.map((image, index) => (
             <li key={image.src} className="admin-uploader-item">
+              <span className={`admin-image-badge ${index === 0 ? "is-cover" : ""}`}>
+                {index === 0 ? "Cover" : `Image ${index + 1}`}
+              </span>
               {/* Uploads live in public/, so the bundler cannot know their size
                   at build time. The stored dimensions reserve the box, which is
                   what prevents layout shift as images load. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={image.src} alt="" width={image.width} height={image.height} />
 
-              <label className="sr-only" htmlFor={`alt-${index}`}>
+              <label className="admin-uploader-alt-label" htmlFor={`alt-${index}`}>
                 Alt text
               </label>
               <input
@@ -427,6 +450,33 @@ export function ImageUploader({
               />
 
               <div className="admin-uploader-actions">
+                {index > 0 ? (
+                  <button
+                    type="button"
+                    className="admin-uploader-replace"
+                    onClick={() => moveExisting(index, 0)}
+                  >
+                    Set as cover
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  className="admin-uploader-replace"
+                  onClick={() => moveExisting(index, index - 1)}
+                  disabled={index === 0}
+                  aria-label={`Move image ${index + 1} earlier`}
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="admin-uploader-replace"
+                  onClick={() => moveExisting(index, index + 1)}
+                  disabled={index === kept.length - 1}
+                  aria-label={`Move image ${index + 1} later`}
+                >
+                  ↓
+                </button>
                 <button
                   type="button"
                   className="admin-uploader-replace"
@@ -451,6 +501,9 @@ export function ImageUploader({
 
           {attachments.map((item, index) => (
             <li key={item.key} className="admin-uploader-item">
+              <span className={`admin-image-badge ${kept.length === 0 && index === 0 ? "is-cover" : ""}`}>
+                {kept.length === 0 && index === 0 ? "Cover" : `New image ${index + 1}`}
+              </span>
               {/*
                 A plain `img` is correct here. `item.url` is an object URL for a
                 file that exists only in the browser's memory and is never
@@ -462,7 +515,7 @@ export function ImageUploader({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={item.url} alt="" width={item.width} height={item.height} />
 
-              <label className="sr-only" htmlFor={`newAlt-${item.key}`}>
+              <label className="admin-uploader-alt-label" htmlFor={`newAlt-${item.key}`}>
                 Alt text
               </label>
               <input
@@ -493,13 +546,33 @@ export function ImageUploader({
                 value={item.replaces ?? ""}
               />
 
-              <button
-                type="button"
-                className="admin-uploader-remove"
-                onClick={() => removeAttachment(item.key)}
-              >
-                Remove
-              </button>
+              <div className="admin-uploader-actions">
+                <button
+                  type="button"
+                  className="admin-uploader-replace"
+                  onClick={() => moveAttachment(index, index - 1)}
+                  disabled={index === 0}
+                  aria-label={`Move new image ${index + 1} earlier`}
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="admin-uploader-replace"
+                  onClick={() => moveAttachment(index, index + 1)}
+                  disabled={index === attachments.length - 1}
+                  aria-label={`Move new image ${index + 1} later`}
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  className="admin-uploader-remove"
+                  onClick={() => removeAttachment(item.key)}
+                >
+                  Remove
+                </button>
+              </div>
             </li>
           ))}
         </ul>

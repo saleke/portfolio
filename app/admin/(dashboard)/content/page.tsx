@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSiteCopy } from "@/lib/content";
 import { COPY_TABS, SECTION_KEYS, SECTION_LABELS } from "@/lib/content-schema";
 import { StringListInput } from "@/components/admin/inputs";
@@ -36,14 +37,14 @@ function TabNav({ active }: { active: string }) {
   return (
     <nav className="admin-tabs" aria-label="Site copy sections">
       {COPY_TABS.map((tab) => (
-        <a
+        <Link
           key={tab.key}
           href={`/admin/content?tab=${tab.key}`}
           className={`admin-tab ${tab.key === active ? "is-active" : ""}`}
           aria-current={tab.key === active ? "page" : undefined}
         >
           {tab.label}
-        </a>
+        </Link>
       ))}
     </nav>
   );
@@ -60,17 +61,23 @@ export default async function ContentPage({
   // this is reached from a nav link, so an unexpected value is a stale bookmark
   // rather than a genuine request for something that does not exist.
   const active = COPY_TABS.some((entry) => entry.key === tab) ? tab! : COPY_TABS[0].key;
+  const previewHref = active === "about" ? "/#about" : "/";
 
   return (
     <div className="admin-page">
       <header className="admin-page-head">
         <div>
           <p className="admin-eyebrow">CONTENT</p>
-          <h1>Site copy</h1>
+          <h1>Homepage</h1>
           <p className="admin-subtle">
             Everything outside the project cards. Each tab saves independently, so editing the hero never
             touches the about section.
           </p>
+        </div>
+        <div className="admin-head-actions">
+          <Link href={previewHref} target="_blank" className="admin-button admin-button-quiet">
+            View live section ↗
+          </Link>
         </div>
       </header>
 
