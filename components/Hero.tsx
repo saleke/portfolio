@@ -8,10 +8,9 @@ export async function Hero() {
   const site = await getSiteCopy();
   const { hero, title } = site;
 
-  // The visible heading is split across lines, but screen readers should hear it
-  // as one sentence. The aria-label is assembled from the same content that is
-  // rendered, so the two cannot drift apart.
-  const spokenTitle = [title, ...hero.positioning].join(" | ");
+  // The name is the page heading. The role and positioning are intentionally a
+  // separate block so the identity does not visually merge into the descriptor.
+  const spokenRole = [title, ...hero.positioning].join(" | ");
 
   return (
     <section className="hero container" aria-labelledby="hero-title">
@@ -20,12 +19,19 @@ export async function Hero() {
           <span className="status-dot" /> {hero.availability}
         </p>
 
-        {hero.overline ? <p className="hero-overline">{hero.overline}</p> : null}
+        <p className="hero-overline">
+          {hero.overline ? <>{hero.overline} <span aria-hidden="true">/</span> </> : null}
+          @{site.codeName}
+        </p>
 
-        <h1 id="hero-title" aria-label={spokenTitle}>
-          <span className="title-line">{title}</span>
+        <h1 className="hero-name" id="hero-title">{site.name}</h1>
+
+        <p className="hero-role" aria-label={spokenRole}>
+          <span className="hero-role-line">
+            <span className="hero-pipe">|</span> {title}
+          </span>
           {hero.positioning.map((line, index) => (
-            <span className="title-line hero-title-detail" key={line}>
+            <span className="hero-role-line" key={line}>
               <span className="hero-pipe">|</span>{" "}
               {/* The first positioning line is rendered as emphasis, matching
                   the original treatment of the primary language grouping. Keyed
@@ -34,7 +40,7 @@ export async function Hero() {
               {index === 0 ? <em>{line}</em> : line}
             </span>
           ))}
-        </h1>
+        </p>
 
         <p className="hero-lede">{hero.lede}</p>
 

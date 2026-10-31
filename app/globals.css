@@ -16,7 +16,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
 .brand { display: inline-flex; gap: 10px; align-items: center; font-family: monospace; font-size: 17px; font-weight: 700; letter-spacing: .02em; }
 .brand-mark { display: grid; width: 28px; height: 28px; place-items: center; border: 1px solid var(--accent); color: var(--accent); font-family: Arial, sans-serif; font-size: 14px; animation: brand-mark-spin 7s cubic-bezier(.4, 0, .2, 1) infinite; }
 .brand-name-shell { display: inline-block; width: var(--brand-ch, 5ch); overflow: hidden; }
-.brand-name { display: block; width: var(--brand-ch, 5ch); overflow: hidden; white-space: nowrap; animation: brand-typing 7s steps(var(--brand-steps, 5), end) infinite; }
+.brand-name { display: block; width: var(--brand-ch, 5ch); overflow: hidden; text-transform: uppercase; white-space: nowrap; animation: brand-typing 7s steps(var(--brand-steps, 5), end) infinite; }
 .site-nav { display: flex; align-items: center; gap: clamp(18px, 3vw, 38px); color: var(--muted); font-family: monospace; font-size: 13px; }
 .site-nav a { display: inline-block; cursor: pointer; touch-action: manipulation; transition: color .2s ease, transform .2s ease; }
 .site-nav a:hover { color: var(--ink); transform: translateY(-3px); }
@@ -26,13 +26,19 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
 .kicker, .hero-overline, .section-index, .project-eyebrow, .detail-label, .detail-aside p { color: var(--accent); font-family: monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
 .kicker { display: inline-flex; align-items: center; gap: 9px; margin: 0 0 40px; color: var(--ink); }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(196,242,105,.1); }
-.hero-overline { margin: 0 0 16px; color: var(--muted); }
+.hero-overline { margin: 0 0 30px; color: var(--muted); }
 h1, h2, h3, p { margin-top: 0; }
 h1 { max-width: 780px; margin-bottom: 28px; font-size: clamp(3rem, 5.6vw, 5.8rem); font-weight: 500; letter-spacing: -.055em; line-height: .98; }
 h1 em { color: var(--accent); font-style: normal; }
 .title-line { display: block; }
 .hero-pipe { color: var(--muted); }
 .hero-title-detail { margin-top: .12em; font-size: .48em; letter-spacing: -.02em; line-height: 1.1; }
+.hero-name { position: relative; width: fit-content; margin-bottom: 30px; padding-bottom: 18px; }
+.hero-name::after { content: ""; position: absolute; bottom: 0; left: 0; width: clamp(76px, 28%, 150px); height: 3px; background: var(--accent); }
+.hero-role { margin: 0 0 30px; font-size: clamp(1.4rem, 2.7vw, 2.7rem); font-weight: 500; letter-spacing: -.025em; line-height: 1.16; }
+.hero-role-line { display: block; margin-top: .16em; }
+.hero-role-line:first-child { margin-top: 0; }
+.hero-role em { color: var(--accent); font-style: normal; }
 .hero-lede { max-width: 520px; margin-bottom: 28px; color: #c0c8c0; font-size: clamp(1.08rem, 1.8vw, 1.35rem); line-height: 1.55; }
 .stack-line { display: flex; flex-wrap: wrap; gap: 8px 17px; margin-bottom: 34px; color: var(--muted); font-family: monospace; font-size: 13px; }
 .stack-line span:not(:last-child)::after { content: "·"; margin-left: 17px; color: var(--accent); }

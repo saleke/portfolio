@@ -54,7 +54,7 @@ export function Navbar({ name }: { name: string }) {
         >
           <span className="brand-mark">{initial}</span>
           <span className="brand-name-shell" aria-hidden="true">
-            <span className="brand-name">{surname}</span>
+            <span className="brand-name">{surname.toUpperCase()}</span>
           </span>
         </Link>
 
