@@ -7,6 +7,9 @@ import { TerminalCard } from "@/components/TerminalCard";
 export async function Hero() {
   const site = await getSiteCopy();
   const { hero, title } = site;
+  const nameParts = site.name.trim().split(/\s+/);
+  const surname = nameParts.pop() ?? site.name;
+  const givenNames = nameParts.join(" ");
 
   // The name is the page heading. The role and positioning are intentionally a
   // separate block so the identity does not visually merge into the descriptor.
@@ -24,7 +27,12 @@ export async function Hero() {
           @{site.codeName}
         </p>
 
-        <h1 className="hero-name" id="hero-title">{site.name}</h1>
+        <h1 className="hero-name" id="hero-title" aria-label={site.name}>
+          {givenNames ? <span className="hero-name-given">{givenNames}</span> : null}
+          <span className="hero-name-surname">
+            {surname}<span className="hero-name-mark" aria-hidden="true">.</span>
+          </span>
+        </h1>
 
         <p className="hero-role" aria-label={spokenRole}>
           <span className="hero-role-line">

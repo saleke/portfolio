@@ -33,8 +33,10 @@ h1 em { color: var(--accent); font-style: normal; }
 .title-line { display: block; }
 .hero-pipe { color: var(--muted); }
 .hero-title-detail { margin-top: .12em; font-size: .48em; letter-spacing: -.02em; line-height: 1.1; }
-.hero-name { position: relative; width: fit-content; margin-bottom: 30px; padding-bottom: 18px; }
-.hero-name::after { content: ""; position: absolute; bottom: 0; left: 0; width: clamp(76px, 28%, 150px); height: 3px; background: var(--accent); }
+.hero-name { position: relative; display: grid; width: fit-content; margin-bottom: 32px; border-left: 3px solid var(--accent); padding: 5px 0 18px 22px; }
+.hero-name-given { color: var(--accent); font-family: monospace; font-size: clamp(.9rem, 1.35vw, 1.1rem); font-weight: 400; letter-spacing: .42em; line-height: 1; text-transform: uppercase; }
+.hero-name-surname { display: block; margin-top: 11px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: clamp(3.9rem, 7.2vw, 7.2rem); font-weight: 700; letter-spacing: -.085em; line-height: .8; text-transform: uppercase; }
+.hero-name-mark { color: var(--accent); }
 .hero-role { margin: 0 0 30px; font-size: clamp(1.4rem, 2.7vw, 2.7rem); font-weight: 500; letter-spacing: -.025em; line-height: 1.16; }
 .hero-role-line { display: block; margin-top: .16em; }
 .hero-role-line:first-child { margin-top: 0; }
