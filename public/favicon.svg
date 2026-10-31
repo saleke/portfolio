@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Saleke</title>
+  <rect width="64" height="64" fill="#0b0d0c"/>
+  <rect x="3" y="3" width="58" height="58" fill="none" stroke="#c4f269" stroke-width="3"/>
+  <path d="M50 12H23L10 27l9 9h18l-5 6H14L8 52h31l14-17-9-9H26l4-5h14z" fill="#c4f269"/>
+</svg>

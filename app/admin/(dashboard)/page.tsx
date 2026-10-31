@@ -5,6 +5,11 @@ import { listRecentCommits, isGitConfigured, type RecentCommit } from "@/lib/git
 import { isAuthConfigured } from "@/lib/auth";
 import { contactVariables } from "@/data/profile";
 import { Icon, type IconName } from "@/components/admin/Icon";
+import {
+  getLatestProductionDeployment,
+  isDeploymentTrackingConfigured,
+  type DeploymentStatus,
+} from "@/lib/vercel";
 
 /**
  * The overview.
@@ -147,6 +152,16 @@ export default async function OverviewPage() {
     }
   }
 
+  let deployment: DeploymentStatus | null = null;
+  let deploymentError = false;
+  if (isDeploymentTrackingConfigured()) {
+    try {
+      deployment = await getLatestProductionDeployment();
+    } catch {
+      deploymentError = true;
+    }
+  }
+
   const checks = buildChecks();
   const blockers = checks.filter((check) => !check.ok && check.critical);
   const technologyCount = technologies.groups.reduce(
@@ -189,6 +204,41 @@ export default async function OverviewPage() {
           </div>
         </section>
       ) : null}
+
+      <section className="admin-deployment" aria-labelledby="deployment-title">
+        <span
+          className={`admin-deployment-dot is-${deploymentError ? "error" : deployment?.state ?? "unknown"}`}
+          aria-hidden="true"
+        />
+        <div>
+          <p className="admin-section-title">Production</p>
+          <h2 id="deployment-title">
+            {deploymentError
+              ? "Deployment status unavailable"
+              : deployment
+                ? deployment.state === "ready"
+                  ? "Latest deployment is live"
+                  : `Deployment ${deployment.state}`
+                : "Connect deployment tracking"}
+          </h2>
+          <p>
+            {deploymentError
+              ? "Vercel could not be reached. Publishing through GitHub still works."
+              : deployment
+                ? `Created ${relativeTime(deployment.createdAt)}${deployment.readyAt ? `, live ${relativeTime(deployment.readyAt)}` : ""}.`
+                : "Add the optional Vercel variables to see build and live status here."}
+          </p>
+        </div>
+        {deployment ? (
+          <a className="admin-button admin-button-quiet" href={deployment.url} target="_blank" rel="noreferrer">
+            Open deployment ↗
+          </a>
+        ) : (
+          <Link className="admin-button admin-button-quiet" href="/admin/settings">
+            Configure
+          </Link>
+        )}
+      </section>
 
       <section aria-labelledby="counts-title">
         <h2 className="admin-section-title" id="counts-title">

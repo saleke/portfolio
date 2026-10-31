@@ -212,6 +212,33 @@ export default function SettingsPage() {
         ))}
       </Group>
 
+      <Group
+        title="Deployment tracking"
+        description="Optional. Connects the dashboard to Vercel so it can distinguish committed, building and live changes."
+      >
+        <VariableRow
+          variable={{
+            name: "VERCEL_ACCESS_TOKEN",
+            purpose: "A read-only Vercel access token used to fetch the latest production deployment.",
+            required: false,
+          }}
+        />
+        <VariableRow
+          variable={{
+            name: "VERCEL_PROJECT_ID",
+            purpose: "The Vercel project identifier shown in the project settings.",
+            required: false,
+          }}
+        />
+        <VariableRow
+          variable={{
+            name: "VERCEL_TEAM_ID",
+            purpose: "Only needed when the project belongs to a Vercel team.",
+            required: false,
+          }}
+        />
+      </Group>
+
       <section className="admin-panel">
         <h2 className="admin-section-title">How publishing works</h2>
         <ol className="admin-explainer">

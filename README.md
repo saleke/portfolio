@@ -149,6 +149,9 @@ need to cross-reference this file against the dashboard.
 | `NEXT_PUBLIC_CONTACT_GITHUB_URL` | Shows the GitHub channel. |
 | `NEXT_PUBLIC_CONTACT_LINKEDIN_URL` | Shows the LinkedIn channel. |
 | `NEXT_PUBLIC_SITE_URL` | Overrides the canonical origin. Production defaults to `https://saleke.is-a.dev`. |
+| `VERCEL_ACCESS_TOKEN` | Optional read-only token for deployment status in the admin dashboard. |
+| `VERCEL_PROJECT_ID` | Optional Vercel project identifier for deployment status. |
+| `VERCEL_TEAM_ID` | Optional Vercel team identifier. |
 
 Contact details are environment variables rather than admin-editable on
 purpose: a phone number and a personal address should not live in a public
@@ -264,6 +267,7 @@ admin being set up.
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run content:check` | Validate `content/` against the schemas |
+| `npm run test:e2e` | Build the production app and run Playwright browser tests |
 | `node scripts/hash-password.mjs "…"` | Generate `ADMIN_PASSWORD_HASH` |
 
 ## Production Build
@@ -283,6 +287,11 @@ different domain should be canonical.
 Set the admin and publishing variables from the table above in the project's
 environment settings. Vercel redeploys on every push to the connected branch,
 which is what makes an admin save go live.
+
+Vercel Analytics and Speed Insights are included in the root layout. Enable the
+corresponding products in the Vercel project dashboard to collect production
+traffic and Core Web Vitals. The application also exposes optional deployment
+status in the admin dashboard when the three Vercel variables are configured.
 
 ## Project Structure
 

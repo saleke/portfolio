@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { siteUrl } from "@/data/site";
 import { getSiteCopy } from "@/lib/content";
@@ -65,7 +67,11 @@ export async function generateMetadata(): Promise<Metadata> {
       title: fullTitle,
       description: site.seoDescription,
     },
-    icons: { icon: site.profileImage },
+    icons: {
+      icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+      shortcut: "/favicon.svg",
+      apple: site.profileImage,
+    },
   };
 }
 
@@ -75,8 +81,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" data-scroll-behavior="smooth">
+      <body>
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
