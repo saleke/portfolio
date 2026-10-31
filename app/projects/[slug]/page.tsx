@@ -7,6 +7,7 @@ import { getProject, getProjectSlugs } from "@/lib/projects";
 import { getSiteCopy } from "@/lib/content";
 import { Prose } from "@/components/Prose";
 import { ProjectShowcase } from "@/components/ProjectShowcase";
+import { siteUrl } from "@/data/site";
 
 /**
  * Case-study page.
@@ -38,10 +39,12 @@ export async function generateMetadata({
   return {
     title: `${project.title} | ${site.name}`,
     description: project.description,
+    alternates: { canonical: `/projects/${slug}` },
     openGraph: {
       title: `${project.title} | Solomon Aleke`,
       description: project.description,
       type: "article",
+      url: `${siteUrl}/projects/${slug}`,
       images: project.images[0]
         ? [
             {
