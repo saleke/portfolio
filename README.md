@@ -148,7 +148,7 @@ need to cross-reference this file against the dashboard.
 | `NEXT_PUBLIC_CONTACT_PHONE` | Shows the phone channel on the site. |
 | `NEXT_PUBLIC_CONTACT_GITHUB_URL` | Shows the GitHub channel. |
 | `NEXT_PUBLIC_CONTACT_LINKEDIN_URL` | Shows the LinkedIn channel. |
-| `NEXT_PUBLIC_SITE_URL` | Only for a custom domain or non-Vercel host. |
+| `NEXT_PUBLIC_SITE_URL` | Overrides the canonical origin. Production defaults to `https://saleke.is-a.dev`. |
 
 Contact details are environment variables rather than admin-editable on
 purpose: a phone number and a personal address should not live in a public
@@ -276,9 +276,9 @@ npm run start
 ## Deployment
 
 The project is configured for Vercel. Import the GitHub repository and deploy
-with the default Next.js settings. Vercel supplies the production URL used by
-the site metadata, so `NEXT_PUBLIC_SITE_URL` is only needed for a custom domain
-or another host.
+with the default Next.js settings. Metadata defaults to the canonical production
+origin, `https://saleke.is-a.dev`; `NEXT_PUBLIC_SITE_URL` is only needed when a
+different domain should be canonical.
 
 Set the admin and publishing variables from the table above in the project's
 environment settings. Vercel redeploys on every push to the connected branch,

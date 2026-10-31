@@ -43,6 +43,19 @@ const nextConfig: NextConfig = {
     },
   },
 
+  async redirects() {
+    return [
+      {
+        // Consolidate links and search signals from the original Vercel domain
+        // onto the public custom domain instead of serving two identical sites.
+        source: "/:path*",
+        has: [{ type: "host", value: "saleke.vercel.app" }],
+        destination: "https://saleke.is-a.dev/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {
