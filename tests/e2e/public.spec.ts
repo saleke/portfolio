@@ -5,6 +5,18 @@ test("homepage presents the portfolio identity and project navigation", async ({
 
   await expect(page.getByRole("heading", { level: 1, name: "Solomon Aleke" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Solomon Aleke home" })).toBeVisible();
+  await expect(page).toHaveTitle(/^saleke \| Solomon Aleke/);
+  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute(
+    "href",
+    "/favicon.svg",
+  );
+  await expect(page.locator(".portrait-frame img")).toHaveAttribute(
+    "alt",
+    "Portrait of Solomon Aleke (saleke)",
+  );
+  const structuredData = await page.locator('script[type="application/ld+json"]').textContent();
+  expect(structuredData).toContain('"additionalName":"saleke"');
+  expect(structuredData).toContain("/images/solomon-aleke-profile.png");
   await expect(page.locator("#projects")).toBeAttached();
 
   const nexus = page.locator(".project-card").filter({ hasText: "Nexus" });

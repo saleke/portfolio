@@ -9,7 +9,7 @@ import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
 import { getSiteCopy } from "@/lib/content";
 import { contact } from "@/data/profile";
-import { siteUrl } from "@/data/site";
+import { searchProfileImagePath, siteUrl } from "@/data/site";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -27,7 +27,8 @@ export default async function Home() {
   const sameAs = [contact.githubUrl, contact.linkedinUrl].filter(
     (url): url is string => Boolean(url),
   );
-  const profileImage = new URL(site.profileImage, siteUrl).toString();
+  const profileImage = new URL(searchProfileImagePath, siteUrl).toString();
+  const profileImageId = `${siteUrl}/#profile-image`;
   const nameParts = site.name.split(/\s+/);
   const structuredData = {
     "@context": "https://schema.org",
@@ -36,8 +37,8 @@ export default async function Home() {
         "@type": "WebSite",
         "@id": `${siteUrl}/#website`,
         url: siteUrl,
-        name: `${site.name} Portfolio`,
-        alternateName: site.codeName,
+        name: site.codeName,
+        alternateName: [`${site.name} Portfolio`, site.name, `@${site.codeName}`],
         description: site.seoDescription,
         inLanguage: "en",
       },
@@ -45,11 +46,13 @@ export default async function Home() {
         "@type": "ProfilePage",
         "@id": `${siteUrl}/#profile-page`,
         url: siteUrl,
-        name: `${site.name} — Software Developer Portfolio`,
+        name: `${site.codeName} | ${site.name} — Software Developer Portfolio`,
         description: site.seoDescription,
         inLanguage: "en",
         isPartOf: { "@id": `${siteUrl}/#website` },
         mainEntity: { "@id": `${siteUrl}/#person` },
+        primaryImageOfPage: { "@id": profileImageId },
+        thumbnailUrl: profileImage,
       },
       {
         "@type": "Person",
@@ -57,9 +60,19 @@ export default async function Home() {
         name: site.name,
         givenName: nameParts[0],
         familyName: nameParts.at(-1),
+        additionalName: site.codeName,
+        identifier: `@${site.codeName}`,
         alternateName: ["Aleke Solomon", site.codeName, `@${site.codeName}`],
         url: siteUrl,
-        image: profileImage,
+        image: {
+          "@type": "ImageObject",
+          "@id": profileImageId,
+          url: profileImage,
+          contentUrl: profileImage,
+          width: 1086,
+          height: 1086,
+          caption: `${site.name} (${site.codeName})`,
+        },
         jobTitle: site.title,
         description: site.seoDescription,
         knowsAbout: [

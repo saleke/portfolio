@@ -12,13 +12,14 @@ import { getSiteCopy } from "@/lib/content";
  */
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSiteCopy();
-  const fullTitle = `${site.name} (${site.codeName}) | ${site.title}`;
+  const brandName = `${site.codeName} | ${site.name}`;
+  const fullTitle = `${brandName} — ${site.title}`;
 
   return {
     metadataBase: new URL(siteUrl),
     title: fullTitle,
     description: site.seoDescription,
-    applicationName: `${site.name} Portfolio`,
+    applicationName: `${brandName} Portfolio`,
     authors: [{ name: site.name, url: siteUrl }],
     creator: site.name,
     publisher: site.name,
@@ -27,6 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
       site.name,
       "Aleke Solomon",
       site.codeName,
+      `${site.codeName} portfolio`,
+      `${site.codeName} developer`,
       "software developer",
       "full stack developer",
       "web developer",
@@ -51,16 +54,8 @@ export async function generateMetadata(): Promise<Metadata> {
       description: site.seoDescription,
       type: "website",
       url: siteUrl,
-      siteName: `${site.name} Portfolio`,
+      siteName: `${brandName} Portfolio`,
       locale: "en_US",
-      images: [
-        {
-          url: site.profileImage,
-          width: 1024,
-          height: 1024,
-          alt: `Portrait of ${site.name}`,
-        },
-      ],
     },
     twitter: {
       card: "summary_large_image",
@@ -68,9 +63,12 @@ export async function generateMetadata(): Promise<Metadata> {
       description: site.seoDescription,
     },
     icons: {
-      icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+      icon: [
+        { url: "/favicon.svg", type: "image/svg+xml", sizes: "any" },
+        { url: "/favicon-48x48.png", type: "image/png", sizes: "48x48" },
+      ],
       shortcut: "/favicon.svg",
-      apple: site.profileImage,
+      apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
     },
   };
 }
