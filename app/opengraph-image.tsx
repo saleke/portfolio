@@ -7,8 +7,8 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OpenGraphImage() {
-  const portrait = await readFile(path.join(process.cwd(), "public/images/solomon-aleke.png"));
-  const portraitUrl = `data:image/png;base64,${portrait.toString("base64")}`;
+  const portrait = await readFile(path.join(process.cwd(), "public/images/solomon-aleke-portrait.webp"));
+  const portraitUrl = `data:image/webp;base64,${portrait.toString("base64")}`;
 
   return new ImageResponse(
     <div
@@ -53,7 +53,7 @@ export default async function OpenGraphImage() {
           alt=""
           width="500"
           height="630"
-          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 42%" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
         />
         <div
           style={{

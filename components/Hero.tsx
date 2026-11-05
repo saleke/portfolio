@@ -90,7 +90,7 @@ export async function Hero() {
               discovered by the parser. */}
           <Image
             src={site.profileImage}
-            alt={`Portrait of ${site.name}`}
+            alt={`Portrait of ${site.name} (${site.codeName})`}
             fill
             preload
             sizes="(max-width: 900px) 75vw, 34vw"

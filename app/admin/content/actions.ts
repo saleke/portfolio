@@ -126,7 +126,7 @@ async function readSite(): Promise<SiteCopy> {
       sections: Object.fromEntries(
         SECTION_KEYS.map((key) => [key, { index: "", title: "", intro: "" }]),
       ),
-      profileImage: "/images/solomon-aleke.png",
+      profileImage: "/images/solomon-aleke-portrait.webp",
     });
   }
 

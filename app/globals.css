@@ -59,7 +59,7 @@ h1 em { color: var(--accent); font-style: normal; }
 .hero-aside { position: relative; display: grid; min-width: 0; justify-items: end; gap: 20px; }
 .portrait-frame { position: relative; width: min(100%, 430px); aspect-ratio: 4 / 5; overflow: hidden; border: 1px solid var(--line); background: #17110e; }
 .portrait-frame::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 65%, rgba(196,242,105,.12)); pointer-events: none; }
-.portrait-frame img { object-fit: cover; object-position: 50% 45%; filter: saturate(.82) contrast(1.05); transition: transform .55s cubic-bezier(.2,.8,.2,1); }
+.portrait-frame img { object-fit: cover; object-position: center; filter: saturate(.82) contrast(1.05); transition: transform .55s cubic-bezier(.2,.8,.2,1); }
 .portrait-frame:hover img { transform: scale(1.045); }
 .terminal-card { width: min(100%, 395px); margin-top: -66px; margin-right: 28px; border: 1px solid var(--line); background: rgba(17,21,19,.95); box-shadow: 16px 16px 0 rgba(196,242,105,.08); }
 .terminal-bar { display: flex; height: 35px; align-items: center; gap: 6px; padding: 0 12px; border-bottom: 1px solid var(--line); color: var(--muted); font-family: monospace; font-size: 11px; }
